@@ -4,6 +4,8 @@ Open-source, self-hosted help center built with **Next.js** and **SQLite**. Conn
 
 Licensed under **Apache-2.0** — see [LICENSE](./LICENSE).
 
+**Live example:** [help.wavevisual.com](https://help.wavevisual.com)
+
 ---
 
 ## Features
