@@ -1,0 +1,27 @@
+# Reference compose — copy and adjust image name, env, and ports.
+# See docs/DOCKER.md for volume layout (never mount the repo onto /app/public).
+
+services:
+  notion-help-center:
+    # Build: docker build -t notion-help-center:latest .  — or push to your own registry.
+    image: notion-help-center:latest
+    ports:
+      - '3000:3000'
+    environment:
+      HELP_CENTER_URL: https://docs.example.com
+      # ADMIN_USERNAME / ADMIN_PASSWORD if you use /admin
+      # HELP_CENTER_DATA_DIR: /app/data  # optional; default /app/data when WORKDIR is /app
+      # Media defaults to /app/media when cwd is /app — only set HELP_CENTER_MEDIA_DIR to override:
+      # HELP_CENTER_MEDIA_DIR: /app/media
+      # Only if JSON mirrors should live outside default ./public (e.g. no public/ in image):
+      # HELP_CENTER_PUBLIC_DIR: /app/public
+    volumes:
+      - notion_help_center_data:/app/data
+      - notion_help_center_media:/app/media
+      # If the image omits public/, uncomment — use a named volume, not your repo:
+      # - notion_help_center_public:/app/public
+
+volumes:
+  notion_help_center_data:
+  notion_help_center_media:
+  # notion_help_center_public:

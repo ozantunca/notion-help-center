@@ -1,0 +1,9 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+You can find a lot of documentation about this project in "docs" folder. Feel free to read them as needed. Start with [index.md](mdc:docs/index.md)
+
+As you add new features or change the way existing ones work, make sure to update our documentation so that they reflect the latest state of our application.
