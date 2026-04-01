@@ -1,6 +1,6 @@
 # Notion Help Center
 
-Open-source, self-hosted help center built with **Next.js** and **SQLite**. Use it standalone with demo content, or connect to **Notion** as a CMS.
+Open-source, self-hosted help center built with **Next.js** and **SQLite**. Connect **Notion** as your CMS, or run standalone without it.
 
 Licensed under **Apache-2.0** — see [LICENSE](./LICENSE).
 
@@ -19,7 +19,7 @@ Licensed under **Apache-2.0** — see [LICENSE](./LICENSE).
 
 ## Quickstart (no Notion)
 
-Try it locally with demo content in three commands:
+Run locally in three commands:
 
 ```bash
 npm install
@@ -53,7 +53,14 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your-strong-password
 ```
 
-Add `NOTION_API_KEY` and `NOTION_DATABASE_ID` if syncing from Notion.
+To sync from Notion, also add:
+
+```env
+NOTION_API_KEY=secret_...
+NOTION_DATABASE_ID=...
+```
+
+You'll need a Notion integration token — create one at [notion.so/my-integrations](https://www.notion.so/my-integrations) and share your database with it. See **Deploy with Notion** below.
 
 **3. Run with persistent volumes**
 
@@ -147,7 +154,7 @@ Settings are stored in SQLite and survive restarts. See [docs/ADMIN.md](./docs/A
 | `npm run build` | Production build |
 | `npm run build:with-sync` | Sync from Notion, then build |
 | `npm run sync` | Fetch Notion → SQLite (dev) |
-| `npm run seed` | Populate demo content without Notion |
+| `npm run seed` | Seed sample articles for local development (no Notion required) |
 | `npm run typecheck` | TypeScript check |
 
 ---
