@@ -89,7 +89,7 @@ pnpm run build:with-sync
 pnpm start
 ```
 
-Optional: while `next start` is running, set `HELP_CENTER_SYNC_CRON` to a [node-cron](https://www.npmjs.com/package/node-cron) expression (e.g. `0 */6 * * *` for every six hours) to pull from Notion on a schedule—same work as `pnpm run sync`. Requires `NOTION_API_KEY` and `NOTION_DATABASE_ID` in the server environment. See [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md).
+**Production:** With `NOTION_API_KEY` and `NOTION_DATABASE_ID` on the server, the app registers **node-cron** with **`HELP_CENTER_SYNC_CRON` or, if unset, a default of every six hours (`0 */6 * * *`)**, and runs **one sync right after startup** so you do not need `pnpm run sync` in the build step. Override the interval by setting `HELP_CENTER_SYNC_CRON`. Persist **`/app/data`** (and **`/app/media`**) on a volume so content survives redeploys. See [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md) and [docs/DOCKER.md](./docs/DOCKER.md).
 
 ---
 

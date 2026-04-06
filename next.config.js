@@ -19,7 +19,17 @@ const nextConfig = {
       ],
     };
   },
-  webpack: (config, { isServer, webpack: webpackApi }) => {
+  webpack: (config, { isServer, nextRuntime, webpack: webpackApi }) => {
+    // Instrumentation is compiled for Edge and Node; the dynamic import is still resolved for Edge.
+    // Replace the Node-only entry so Edge never pulls `path` / `fs` / SQLite.
+    if (isServer && nextRuntime === 'edge') {
+      config.plugins.push(
+        new webpackApi.NormalModuleReplacementPlugin(
+          /[/\\]instrumentation-node\.ts$/,
+          path.join(__dirname, 'lib/instrumentation-node.edge-stub.ts'),
+        ),
+      );
+    }
     if (!isServer) {
       config.resolve.alias = {
         ...config.resolve.alias,

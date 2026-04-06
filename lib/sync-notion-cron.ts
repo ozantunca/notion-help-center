@@ -3,6 +3,9 @@ import { runNotionSync } from "./run-notion-sync";
 
 const ENV_CRON = "HELP_CENTER_SYNC_CRON";
 
+/** Used in production when `HELP_CENTER_SYNC_CRON` is unset (every 6 hours, server timezone). */
+const DEFAULT_SYNC_CRON = "0 */6 * * *";
+
 const cronGlobal = globalThis as typeof globalThis & {
   __helpCenterSyncCronStarted?: boolean;
 };
@@ -26,20 +29,24 @@ async function runScheduledSync(): Promise<void> {
   }
 }
 
-/** Start node-cron when `HELP_CENTER_SYNC_CRON` is a valid expression (see node-cron package docs). */
+/**
+ * Registers periodic Notion sync via `node-cron`.
+ * If `HELP_CENTER_SYNC_CRON` is unset or blank, uses {@link DEFAULT_SYNC_CRON}.
+ * Runs one sync immediately on server start only in **production** when Notion env vars are set
+ * (avoids a full sync on every `pnpm dev` restart).
+ */
 export function startNotionSyncCron(): void {
   if (cronGlobal.__helpCenterSyncCronStarted) {
     return;
   }
 
-  const expression = (process.env[ENV_CRON] ?? "").trim();
-  if (!expression) {
-    return;
-  }
+  const raw = (process.env[ENV_CRON] ?? "").trim();
+  const isProd = process.env.NODE_ENV === "production";
+  const expression = raw || DEFAULT_SYNC_CRON;
 
   if (!cron.validate(expression)) {
     console.error(
-      `[help-center] ${ENV_CRON} is not a valid cron expression (${JSON.stringify(expression)}); periodic sync disabled`,
+      `[help-center] ${ENV_CRON} is not a valid cron expression (${JSON.stringify(raw || expression)}); periodic sync disabled`,
     );
     return;
   }
@@ -47,11 +54,26 @@ export function startNotionSyncCron(): void {
   cron.schedule(expression, () => {
     void runScheduledSync();
   });
-
   cronGlobal.__helpCenterSyncCronStarted = true;
-  console.info(
-    `[help-center] Periodic Notion sync scheduled: ${ENV_CRON}=${JSON.stringify(expression)}`,
-  );
-  console.info("[help-center] Running initial Notion sync on server start...");
-  void runScheduledSync();
+
+  if (raw) {
+    console.info(
+      `[help-center] Periodic Notion sync scheduled: ${ENV_CRON}=${JSON.stringify(expression)}`,
+    );
+  } else {
+    console.info(
+      `[help-center] Periodic Notion sync scheduled: ${ENV_CRON} unset, using default ${JSON.stringify(expression)}`,
+    );
+  }
+
+  const hasNotionCreds =
+    Boolean(process.env.NOTION_API_KEY?.trim()) &&
+    Boolean(process.env.NOTION_DATABASE_ID?.trim());
+
+  if (isProd && hasNotionCreds) {
+    console.info(
+      "[help-center] Running initial Notion sync on server start...",
+    );
+    void runScheduledSync();
+  }
 }
