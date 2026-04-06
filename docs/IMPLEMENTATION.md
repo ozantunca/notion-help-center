@@ -36,7 +36,11 @@
 | `lib/help-data.client-stub.ts` | Browser-only stubs; real `help-data` runs on the server |
 | `lib/notion.ts` | Fetches collections (incl. Notion **page icon** → `icon` field) |
 | `components/CollectionIcon.tsx` | Category / breadcrumb icon: emoji or image URL |
-| `scripts/sync-notion.ts` | Notion → SQLite + exports; rehosts `http(s)` collection icons to `/media` |
+| `lib/run-notion-sync.ts` | Shared Notion → SQLite + exports (used by CLI sync and periodic job) |
+| `lib/sync-notion-cron.ts` | Optional `node-cron` scheduler when `HELP_CENTER_SYNC_CRON` is set |
+| `instrumentation.ts` | Next.js hook: in Node only, dynamically imports `instrumentation-node.ts` (avoids Edge bundle pulling `path` / SQLite) |
+| `instrumentation-node.ts` | Registers periodic Notion sync (`node-cron` + `runNotionSync`) |
+| `scripts/sync-notion.ts` | CLI: loads `.env.local`, runs `runNotionSync()` |
 | `scripts/seed-demo.ts` | Demo data without Notion |
 | `scripts/regenerate-search-index.ts` | Rebuild Lunr from current articles |
 
@@ -45,6 +49,7 @@
 See [`.env.example`](../.env.example).
 
 - `NOTION_API_KEY`, `NOTION_DATABASE_ID` — required for sync.
+- `HELP_CENTER_SYNC_CRON` — optional [node-cron](https://www.npmjs.com/package/node-cron) expression; when set, the Next.js server runs the same sync as `npm run sync` on that schedule (single-instance deployments). Empty or unset disables the scheduler. Invalid expressions are logged and ignored.
 - `ADMIN_USERNAME`, `ADMIN_PASSWORD` — enable `/admin` (see [ADMIN.md](./ADMIN.md)).
 - `HELP_CENTER_URL` — canonical URL for sitemap (default `http://localhost:3000` in dev).
 - `HELP_CENTER_HTTP_USER_AGENT` — optional, when downloading images in sync.
@@ -55,7 +60,7 @@ See [`.env.example`](../.env.example).
 
 ## Data flow
 
-1. **Sync** loads collections, sub-collections, articles, markdown per article, builds Lunr index, preserves site config from DB/file (remote logo → `/media` when applicable), then `saveHelpCenterData({ ... })`.
+1. **Sync** (manual `npm run sync` or periodic job when `HELP_CENTER_SYNC_CRON` is set) loads collections, sub-collections, articles, markdown per article, builds Lunr index, preserves site config from DB/file (remote logo → `/media` when applicable), then `saveHelpCenterData({ ... })`. Overlapping periodic runs are skipped if a sync is still in progress.
 2. **Pages** call `loadHelpMetadata()` / `loadSiteConfig()` (server). Site config is read from SQLite, then `public/site-config.json`, then defaults.
 3. **Search** (`pages/search.tsx`) uses `loadSearchSnapshot()` (DB, then `public/search-index.json` fallback).
 

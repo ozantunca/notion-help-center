@@ -87,6 +87,8 @@ npm run build:with-sync
 npm start
 ```
 
+Optional: while `next start` is running, set `HELP_CENTER_SYNC_CRON` to a [node-cron](https://www.npmjs.com/package/node-cron) expression (e.g. `0 */6 * * *` for every six hours) to pull from Notion on a schedule—same work as `npm run sync`. Requires `NOTION_API_KEY` and `NOTION_DATABASE_ID` in the server environment. See [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md).
+
 ---
 
 ## Deploy (Docker)
