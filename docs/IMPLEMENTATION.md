@@ -6,7 +6,7 @@
 
 1. **Next.js** — SSR for home, collection, and article pages (live DB each request); SSG/ISR for contact; SSR for search and legacy redirects.
 2. **SQLite** (`data/help-center.db`) — canonical storage for collections, articles (markdown body), Lunr search snapshot, optional serialized site config, and article feedback.
-3. **Sync** — `npm run sync` pulls Notion, fills SQLite, and writes optional JSON mirrors (`data/metadata.json`, `public/search-index.json`, `public/site-config.json`).
+3. **Sync** — `pnpm run sync` pulls Notion, fills SQLite, and writes optional JSON mirrors (`data/metadata.json`, `public/search-index.json`, `public/site-config.json`).
 4. **Theme** — Base tokens in `styles/globals.css`; each request’s theme is injected by `SiteConfigProvider` via an inline `<style>` built from `_app.getInitialProps` (`loadSiteConfig()`), so the client does not refetch config and there is no branding/theme flash. Optional `GET /api/site-config` remains for embeds. Branding is edited at **`/admin`** when `ADMIN_USERNAME` / `ADMIN_PASSWORD` are set.
 
 ## Key files
@@ -37,7 +37,7 @@
 | `lib/notion.ts` | Fetches collections (incl. Notion **page icon** → `icon` field) |
 | `components/CollectionIcon.tsx` | Category / breadcrumb icon: emoji or image URL |
 | `lib/run-notion-sync.ts` | Shared Notion → SQLite + exports (used by CLI sync and periodic job) |
-| `lib/sync-notion-cron.ts` | Optional `node-cron` scheduler when `HELP_CENTER_SYNC_CRON` is set |
+| `lib/sync-notion-cron.ts` | Optional `node-cron` scheduler when `HELP_CENTER_SYNC_CRON` is set; also triggers one sync when the server starts |
 | `instrumentation.ts` | Next.js hook: in Node only, dynamically imports `instrumentation-node.ts` (avoids Edge bundle pulling `path` / SQLite) |
 | `instrumentation-node.ts` | Registers periodic Notion sync (`node-cron` + `runNotionSync`) |
 | `scripts/sync-notion.ts` | CLI: loads `.env.local`, runs `runNotionSync()` |
@@ -49,7 +49,7 @@
 See [`.env.example`](../.env.example).
 
 - `NOTION_API_KEY`, `NOTION_DATABASE_ID` — required for sync.
-- `HELP_CENTER_SYNC_CRON` — optional [node-cron](https://www.npmjs.com/package/node-cron) expression; when set, the Next.js server runs the same sync as `npm run sync` on that schedule (single-instance deployments). Empty or unset disables the scheduler. Invalid expressions are logged and ignored.
+- `HELP_CENTER_SYNC_CRON` — optional [node-cron](https://www.npmjs.com/package/node-cron) expression; when set, the Next.js server runs the same sync as `pnpm run sync` **once on startup** and then on that schedule (single-instance deployments). Empty or unset disables the scheduler and startup sync. Invalid expressions are logged and ignored.
 - `ADMIN_USERNAME`, `ADMIN_PASSWORD` — enable `/admin` (see [ADMIN.md](./ADMIN.md)).
 - `HELP_CENTER_URL` — canonical URL for sitemap (default `http://localhost:3000` in dev).
 - `HELP_CENTER_HTTP_USER_AGENT` — optional, when downloading images in sync.
@@ -60,7 +60,7 @@ See [`.env.example`](../.env.example).
 
 ## Data flow
 
-1. **Sync** (manual `npm run sync` or periodic job when `HELP_CENTER_SYNC_CRON` is set) loads collections, sub-collections, articles, markdown per article, builds Lunr index, preserves site config from DB/file (remote logo → `/media` when applicable), then `saveHelpCenterData({ ... })`. Overlapping periodic runs are skipped if a sync is still in progress.
+1. **Sync** (manual `pnpm run sync`, or when `HELP_CENTER_SYNC_CRON` is set: once at Node server start plus on the cron schedule) loads collections, sub-collections, articles, markdown per article, builds Lunr index, preserves site config from DB/file (remote logo → `/media` when applicable), then `saveHelpCenterData({ ... })`. Overlapping runs are skipped if a sync is still in progress.
 2. **Pages** call `loadHelpMetadata()` / `loadSiteConfig()` (server). Site config is read from SQLite, then `public/site-config.json`, then defaults.
 3. **Search** (`pages/search.tsx`) uses `loadSearchSnapshot()` (DB, then `public/search-index.json` fallback).
 
@@ -80,7 +80,7 @@ Keep on a volume or durable disk:
 
 ## OSS artifact policy
 
-Generated files are listed in `.gitignore`. Clone → `npm install` → `npm run seed` for a quick demo, or configure Notion and run `npm run sync`.
+Generated files are listed in `.gitignore`. Clone → `pnpm install` → `pnpm run seed` for a quick demo, or configure Notion and run `pnpm run sync`.
 
 ## Article URLs
 

@@ -35,4 +35,4 @@ See **[DOCKER.md](./DOCKER.md)** and the Deployment section in **README.md**.
 
 ## Sync
 
-`npm run sync` **does not** change site settings from Notion; it **keeps** the current DB/file config and only re-downloads a remote logo URL if the saved config still points at `http(s)`.
+`pnpm run sync` **does not** change site settings from Notion; it **keeps** the current DB/file config and only re-downloads a remote logo URL if the saved config still points at `http(s)`.

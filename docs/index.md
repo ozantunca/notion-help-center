@@ -1,6 +1,6 @@
 # Notion Help Center — documentation
 
-Open-source template: self-hosted docs from **Notion** with a **SQLite** + **Next.js** UI.
+Open-source template: self-hosted docs from **Notion** with a **SQLite** + **Next.js** UI. Dependencies and scripts use **[pnpm](https://pnpm.io/)** (`pnpm-lock.yaml`).
 
 - **[README.md](../README.md)** — setup, scripts, Notion, deployment
 - **[DOCKER.md](./DOCKER.md)** — volume layout (avoid exposing the repo via `public/`)

@@ -15,7 +15,7 @@ services:
       # HELP_CENTER_MEDIA_DIR: /app/media
       # Only if JSON mirrors should live outside default ./public (e.g. no public/ in image):
       # HELP_CENTER_PUBLIC_DIR: /app/public
-      # Optional: cron schedule for in-process sync (same as npm run sync); needs NOTION_* set:
+      # Optional: cron schedule for in-process sync (same as pnpm run sync); needs NOTION_* set:
       # HELP_CENTER_SYNC_CRON: "0 0 * * *"
     volumes:
       - notion_help_center_data:/app/data

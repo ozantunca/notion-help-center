@@ -72,10 +72,12 @@ ADMIN_PASSWORD=your-strong-password
 
 ### 4) Sync and run
 
+Install [pnpm](https://pnpm.io/installation) (or run `corepack enable` so Node uses the version in `package.json`’s `packageManager` field).
+
 ```bash
-npm install
-npm run sync
-npm run dev
+pnpm install
+pnpm run sync
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -83,11 +85,11 @@ Open [http://localhost:3000](http://localhost:3000).
 For production builds, use:
 
 ```bash
-npm run build:with-sync
-npm start
+pnpm run build:with-sync
+pnpm start
 ```
 
-Optional: while `next start` is running, set `HELP_CENTER_SYNC_CRON` to a [node-cron](https://www.npmjs.com/package/node-cron) expression (e.g. `0 */6 * * *` for every six hours) to pull from Notion on a schedule—same work as `npm run sync`. Requires `NOTION_API_KEY` and `NOTION_DATABASE_ID` in the server environment. See [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md).
+Optional: while `next start` is running, set `HELP_CENTER_SYNC_CRON` to a [node-cron](https://www.npmjs.com/package/node-cron) expression (e.g. `0 */6 * * *` for every six hours) to pull from Notion on a schedule—same work as `pnpm run sync`. Requires `NOTION_API_KEY` and `NOTION_DATABASE_ID` in the server environment. See [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md).
 
 ---
 
@@ -158,21 +160,21 @@ See [`.env.example`](./.env.example) for the full template.
 
 | Script | Purpose |
 |--------|---------|
-| `npm run dev` | Next.js dev server |
-| `npm run build` | Production build |
-| `npm run build:with-sync` | Sync from Notion, then build (recommended for production) |
-| `npm run sync` | Fetch Notion to SQLite (dev/manual sync) |
-| `npm run seed` | Seed sample articles for local demo/testing |
-| `npm run typecheck` | TypeScript check |
+| `pnpm run dev` | Next.js dev server |
+| `pnpm run build` | Production build |
+| `pnpm run build:with-sync` | Sync from Notion, then build (recommended for production) |
+| `pnpm run sync` | Fetch Notion to SQLite (dev/manual sync) |
+| `pnpm run seed` | Seed sample articles for local demo/testing |
+| `pnpm run typecheck` | TypeScript check |
 
 ### Local demo mode (for developers)
 
 If you only want to preview the UI locally without connecting Notion:
 
 ```bash
-npm install
-npm run seed
-npm run dev
+pnpm install
+pnpm run seed
+pnpm run dev
 ```
 
 ---
@@ -193,4 +195,4 @@ Inspired by [HelpKit](https://www.helpkit.so), a hosted help center solution bui
 
 ## Contributing
 
-Issues and PRs are welcome. Do not commit secrets or deployment-specific branding in shared defaults.
+Issues and PRs are welcome. Use **pnpm** for installs and scripts (`pnpm install`, `pnpm run …`). Do not commit secrets, `package-lock.json`, or deployment-specific branding in shared defaults.

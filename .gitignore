@@ -40,7 +40,7 @@ public/media/
 data/help-center.db
 data/feedback.db
 
-# Generated sync artifacts (also written during npm run sync / seed)
+# Generated sync artifacts (also written during pnpm run sync / seed)
 data/metadata.json
 public/search-index.json
 public/site-config.json

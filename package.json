@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "license": "Apache-2.0",
+  "packageManager": "pnpm@8.15.9",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:with-sync": "npm run sync && next build",
+    "build:with-sync": "pnpm run sync && next build",
     "start": "next start",
     "sync": "tsx scripts/sync-notion.ts",
     "seed": "tsx scripts/seed-demo.ts",
