@@ -1,22 +1,26 @@
-import cron from 'node-cron';
-import { runNotionSync } from './run-notion-sync';
+import cron from "node-cron";
+import { runNotionSync } from "./run-notion-sync";
 
-const ENV_CRON = 'HELP_CENTER_SYNC_CRON';
+const ENV_CRON = "HELP_CENTER_SYNC_CRON";
 
-const cronGlobal = globalThis as typeof globalThis & { __helpCenterSyncCronStarted?: boolean };
+const cronGlobal = globalThis as typeof globalThis & {
+  __helpCenterSyncCronStarted?: boolean;
+};
 
 let syncInProgress = false;
 
 async function runScheduledSync(): Promise<void> {
   if (syncInProgress) {
-    console.warn('[help-center] Periodic Notion sync skipped: previous run still in progress');
+    console.warn(
+      "[help-center] Periodic Notion sync skipped: previous run still in progress",
+    );
     return;
   }
   syncInProgress = true;
   try {
     await runNotionSync();
   } catch (err) {
-    console.error('[help-center] Periodic Notion sync failed:', err);
+    console.error("[help-center] Periodic Notion sync failed:", err);
   } finally {
     syncInProgress = false;
   }
@@ -28,7 +32,7 @@ export function startNotionSyncCron(): void {
     return;
   }
 
-  const expression = (process.env[ENV_CRON] ?? '').trim();
+  const expression = (process.env[ENV_CRON] ?? "").trim();
   if (!expression) {
     return;
   }
@@ -45,5 +49,9 @@ export function startNotionSyncCron(): void {
   });
 
   cronGlobal.__helpCenterSyncCronStarted = true;
-  console.log(`[help-center] Periodic Notion sync scheduled: ${ENV_CRON}=${JSON.stringify(expression)}`);
+  console.info(
+    `[help-center] Periodic Notion sync scheduled: ${ENV_CRON}=${JSON.stringify(expression)}`,
+  );
+  console.info("[help-center] Running initial Notion sync on server start...");
+  void runScheduledSync();
 }

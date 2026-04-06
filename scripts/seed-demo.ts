@@ -1,6 +1,6 @@
 /**
  * Populate SQLite + public JSON files with generic demo content (no Notion required).
- * Run: npx tsx scripts/seed-demo.ts
+ * Run: pnpm run seed  (or pnpm exec tsx scripts/seed-demo.ts)
  *
  */
 import * as fs from 'fs';
@@ -53,7 +53,7 @@ const articles: Article[] = [
 
 This is **demo content** for the open-source **Notion Help Center** template.
 
-- Run \`npm run sync\` to pull content from Notion in production.
+- Run \`pnpm run sync\` to pull content from Notion in production.
 - Use this seed when you only need a quick local preview.`,
   },
 ];

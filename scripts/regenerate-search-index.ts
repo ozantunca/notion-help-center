@@ -1,6 +1,6 @@
 /**
  * Regenerate Lunr search index from SQLite / metadata (articles in DB or JSON fallback).
- * Run: npx tsx scripts/regenerate-search-index.ts
+ * Run: pnpm exec tsx scripts/regenerate-search-index.ts
  */
 import { generateSearchIndex } from '../lib/search-index';
 import { loadHelpMetadata, saveSearchSnapshotOnly } from '../lib/help-data';

@@ -11,7 +11,7 @@ import { finalizeSiteConfigFromDisk } from './site-config-env';
 import { getHelpDataDir } from './data-dir';
 import { ensureHelpPublicDir, getHelpPublicDir } from './public-dir';
 
-/** Full Notion → SQLite + JSON mirrors (same as `npm run sync`). */
+/** Full Notion → SQLite + JSON mirrors (same as `pnpm run sync`). */
 export async function runNotionSync(): Promise<void> {
   console.log('🔄 Starting Notion sync...');
 

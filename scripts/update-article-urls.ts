@@ -1,7 +1,7 @@
 /**
  * One-time script: update article URLs in metadata.json to the new canonical format
  * /{collectionSlug}/{categoryId}/{articleSlug}/{articleId}
- * Run: npx tsx scripts/update-article-urls.ts
+ * Run: pnpm exec tsx scripts/update-article-urls.ts
  */
 import * as fs from 'fs';
 import * as path from 'path';
