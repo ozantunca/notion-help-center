@@ -12,18 +12,30 @@ const cronGlobal = globalThis as typeof globalThis & {
 
 let syncInProgress = false;
 
+function syncCronTimestamp(): string {
+  return new Date().toISOString();
+}
+
 async function runScheduledSync(): Promise<void> {
+  const at = syncCronTimestamp();
   if (syncInProgress) {
     console.warn(
-      "[help-center] Periodic Notion sync skipped: previous run still in progress",
+      `[help-center] Periodic Notion sync skipped at ${at}: previous run still in progress`,
     );
     return;
   }
   syncInProgress = true;
+  console.info(`[help-center] Periodic Notion sync starting at ${at}`);
   try {
     await runNotionSync();
+    console.info(
+      `[help-center] Periodic Notion sync completed at ${syncCronTimestamp()}`,
+    );
   } catch (err) {
-    console.error("[help-center] Periodic Notion sync failed:", err);
+    console.error(
+      `[help-center] Periodic Notion sync failed at ${syncCronTimestamp()}:`,
+      err,
+    );
   } finally {
     syncInProgress = false;
   }
