@@ -44,3 +44,9 @@ data/feedback.db
 data/metadata.json
 public/search-index.json
 public/site-config.json
+
+# Widget build artifacts
+public/widget.js
+public/widget.tgz
+widget/dist/
+widget/node_modules/

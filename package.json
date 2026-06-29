@@ -11,7 +11,9 @@
     "start": "next start",
     "sync": "tsx scripts/sync-notion.ts",
     "seed": "tsx scripts/seed-demo.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:widget": "cd widget && pnpm install && pnpm build && cp dist/widget.iife.global.js ../public/widget.js && npm pack --pack-destination ../public && cd ../public && mv notion-help-center-widget-*.tgz widget.tgz",
+    "dev:widget": "cd widget && pnpm install && pnpm dev"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
