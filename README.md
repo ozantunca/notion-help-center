@@ -137,6 +137,70 @@ Settings are stored in SQLite and persist across restarts. See [docs/ADMIN.md](.
 
 ---
 
+## Client widget
+
+Embed a floating help center widget on any external site — no npm account or third-party service required. The widget is built and served directly from your help center server.
+
+### Script tag (any site)
+
+```html
+<script src="https://your-help-center.com/widget.js"
+        data-api-url="https://your-help-center.com"></script>
+```
+
+### npm install (React / Next.js apps)
+
+```bash
+npm install https://your-help-center.com/widget.tgz
+```
+
+```tsx
+import { HelpCenterWidget } from 'notion-help-center-widget';
+
+<HelpCenterWidget apiUrl="https://your-help-center.com" />
+```
+
+Or call `init()` programmatically (framework-agnostic):
+
+```ts
+import { init } from 'notion-help-center-widget';
+init({ apiUrl: 'https://your-help-center.com' });
+```
+
+### Building the widget
+
+Run once before starting the server (or add to your deploy step):
+
+```bash
+pnpm run build:widget
+```
+
+This produces `public/widget.js` (IIFE bundle) and `public/widget.tgz` (npm-installable tarball), both served as static files by Next.js.
+
+### CORS
+
+The widget calls the public REST API (`/api/v1/*`) from the customer's domain. Set `PUBLIC_API_CORS_ORIGIN` to allow cross-origin requests:
+
+```env
+PUBLIC_API_CORS_ORIGIN=*
+# or restrict to a specific origin:
+PUBLIC_API_CORS_ORIGIN=https://your-app.com
+```
+
+### Public REST API
+
+The widget is powered by a versioned public API. You can also call these endpoints directly:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/config` | Brand name, logo, colors, support email |
+| `GET /api/v1/collections` | Collections with nested subcollections |
+| `GET /api/v1/articles` | Published articles (metadata). Filters: `?collectionId=`, `?suggested=true` |
+| `GET /api/v1/articles/:id` | Single article with full markdown content |
+| `GET /api/v1/search?q=` | Full-text search (Lunr), published articles only |
+
+---
+
 ## Technical reference
 
 ### Environment variables
@@ -148,6 +212,7 @@ Settings are stored in SQLite and persist across restarts. See [docs/ADMIN.md](.
 | `HELP_CENTER_URL` | Yes | Public URL (e.g. `https://docs.example.com`) used for sitemap and absolute links |
 | `ADMIN_USERNAME` | Recommended | Enables `/admin` with HTTP Basic auth |
 | `ADMIN_PASSWORD` | Recommended | Password for `/admin` |
+| `PUBLIC_API_CORS_ORIGIN` | Optional | Sets `Access-Control-Allow-Origin` on `/api/v1/*` for the client widget (e.g. `*`) |
 | `HELP_CENTER_DATA_DIR` | Optional | Override SQLite directory (default: `./data`, or `/app/data` in Docker) |
 | `HELP_CENTER_MEDIA_DIR` | Optional | Override media directory (default: `./public/media`, or `/app/media` in Docker) |
 | `HELP_CENTER_PUBLIC_DIR` | Optional | Override writable public directory for `site-config.json` (default: `./public`) |
@@ -163,6 +228,8 @@ See [`.env.example`](./.env.example) for the full template.
 | `pnpm run dev` | Next.js dev server |
 | `pnpm run build` | Production build |
 | `pnpm run build:with-sync` | Sync from Notion, then build (recommended for production) |
+| `pnpm run build:widget` | Build `public/widget.js` and `public/widget.tgz` (run before deploying) |
+| `pnpm run dev:widget` | Watch mode for widget development |
 | `pnpm run sync` | Fetch Notion to SQLite (dev/manual sync) |
 | `pnpm run seed` | Seed sample articles for local demo/testing |
 | `pnpm run typecheck` | TypeScript check |

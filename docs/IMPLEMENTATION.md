@@ -87,6 +87,27 @@ Generated files are listed in `.gitignore`. Clone → `pnpm install` → `pnpm r
 
 Canonical paths: `/{collectionSlug}/{subCollectionId}/{articleSlug}/{articleId}` (see `lib/article-url.ts`). Legacy three-segment URLs redirect with `getServerSideProps`.
 
-## Widget / embed
+## Public REST API (`/api/v1/*`)
 
-If you embed search in another app, you can serve `GET /search-index.json` (when generated) for Lunr on the client. Keep CORS and deployment in mind.
+A versioned public API powers the client widget and can be called directly:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/config` | Brand name, logo, colors (from `loadSiteConfig()`) |
+| `GET /api/v1/collections` | All collections with nested subcollections |
+| `GET /api/v1/articles` | Published articles (metadata, no content). Query: `?collectionId=`, `?suggested=true` |
+| `GET /api/v1/articles/:id` | Single published article with full markdown content |
+| `GET /api/v1/search?q=` | Lunr full-text search, published articles only |
+
+CORS headers are set on all `/api/v1/*` routes via `lib/cors.ts`, controlled by the `PUBLIC_API_CORS_ORIGIN` env var. If the var is unset, no `Access-Control-Allow-Origin` header is sent.
+
+## Client widget
+
+A floating help center widget lives in `widget/` and is distributed two ways — both from the help center server itself:
+
+- **`/widget.js`** — IIFE bundle for `<script>` tag embed. Auto-initialises from the `data-api-url` attribute on the script element.
+- **`/widget.tgz`** — npm-installable tarball. Customers run `npm install https://your-host/widget.tgz` and import `{ HelpCenterWidget }` or `{ init }`. No npm registry required.
+
+Built with tsup (`widget/tsup.config.ts`). Run `pnpm run build:widget` to produce both files under `public/`. The `widget/` source is standard TypeScript React; `widget/src/hooks/useApi.ts` wraps the `/api/v1/*` endpoints.
+
+The widget fetches brand colors from `GET /api/v1/config` and applies them as CSS variables (`--nhc-primary`, `--nhc-primary-hover`) on the `#nhc-widget` root element, so the launcher button and panel header automatically match the help center's theme.
