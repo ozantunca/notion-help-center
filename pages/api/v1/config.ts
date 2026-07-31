@@ -3,7 +3,7 @@ import { loadSiteConfig } from '../../../lib/help-data';
 import { setCorsHeaders } from '../../../lib/cors';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  setCorsHeaders(res);
+  setCorsHeaders(req, res);
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();

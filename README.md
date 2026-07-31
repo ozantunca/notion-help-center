@@ -179,13 +179,15 @@ This produces `public/widget.js` (IIFE bundle) and `public/widget.tgz` (npm-inst
 
 ### CORS
 
-The widget calls the public REST API (`/api/v1/*`) from the customer's domain. Set `PUBLIC_API_CORS_ORIGIN` to allow cross-origin requests:
+The widget calls the public REST API (`/api/v1/*`) from the customer's domain. Set `PUBLIC_API_CORS_ORIGIN` to allow cross-origin requests. Use a comma-separated list of exact origins, or `*` for any origin:
 
 ```env
 PUBLIC_API_CORS_ORIGIN=*
-# or restrict to a specific origin:
-PUBLIC_API_CORS_ORIGIN=https://your-app.com
+# or restrict to specific origins:
+PUBLIC_API_CORS_ORIGIN=https://wavevisual.com,https://www.wavevisual.com,http://localhost:3000
 ```
+
+When multiple origins are listed, the server checks the request `Origin` header and echoes back only matching origins.
 
 ### Public REST API
 
@@ -212,7 +214,7 @@ The widget is powered by a versioned public API. You can also call these endpoin
 | `HELP_CENTER_URL` | Yes | Public URL (e.g. `https://docs.example.com`) used for sitemap and absolute links |
 | `ADMIN_USERNAME` | Recommended | Enables `/admin` with HTTP Basic auth |
 | `ADMIN_PASSWORD` | Recommended | Password for `/admin` |
-| `PUBLIC_API_CORS_ORIGIN` | Optional | Sets `Access-Control-Allow-Origin` on `/api/v1/*` for the client widget (e.g. `*`) |
+| `PUBLIC_API_CORS_ORIGIN` | Optional | Comma-separated allowlist for `/api/v1/*` CORS (e.g. `https://app.com,http://localhost:3000`) or `*` |
 | `HELP_CENTER_DATA_DIR` | Optional | Override SQLite directory (default: `./data`, or `/app/data` in Docker) |
 | `HELP_CENTER_MEDIA_DIR` | Optional | Override media directory (default: `./public/media`, or `/app/media` in Docker) |
 | `HELP_CENTER_PUBLIC_DIR` | Optional | Override writable public directory for `site-config.json` (default: `./public`) |

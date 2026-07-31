@@ -6,7 +6,7 @@ import { setCorsHeaders } from '../../../../lib/cors';
 type ArticleMetadata = Omit<Article, 'content'>;
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  setCorsHeaders(res);
+  setCorsHeaders(req, res);
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
