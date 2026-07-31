@@ -99,7 +99,7 @@ A versioned public API powers the client widget and can be called directly:
 | `GET /api/v1/articles/:id` | Single published article with full markdown content |
 | `GET /api/v1/search?q=` | Lunr full-text search, published articles only |
 
-CORS headers are set on all `/api/v1/*` routes via `lib/cors.ts`, controlled by the `PUBLIC_API_CORS_ORIGIN` env var. If the var is unset, no `Access-Control-Allow-Origin` header is sent.
+CORS headers are set on all `/api/v1/*` routes via `lib/cors.ts`, controlled by the `PUBLIC_API_CORS_ORIGIN` env var. Provide a comma-separated list of allowed origins (exact match on the request `Origin` header), or `*` to allow any origin. If the var is unset, no `Access-Control-Allow-Origin` header is sent.
 
 ## Client widget
 

@@ -8,7 +8,7 @@ interface CollectionWithSubs extends Collection {
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  setCorsHeaders(res);
+  setCorsHeaders(req, res);
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
