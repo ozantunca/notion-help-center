@@ -7,10 +7,12 @@ interface Props {
   onClose: () => void;
   /** Changes whenever a different view is shown, so the body scrolls back to the top. */
   viewKey: string;
+  /** Optional row pinned below the scrolling body, e.g. an escalation link. */
+  footer?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export function Panel({ title, canGoBack, onBack, onClose, viewKey, children }: Props) {
+export function Panel({ title, canGoBack, onBack, onClose, viewKey, footer, children }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export function Panel({ title, canGoBack, onBack, onClose, viewKey, children }: 
         </button>
       </div>
       <div className="nhc-panel-body" ref={bodyRef}>{children}</div>
+      {footer && <div className="nhc-panel-footer">{footer}</div>}
     </div>
   );
 }

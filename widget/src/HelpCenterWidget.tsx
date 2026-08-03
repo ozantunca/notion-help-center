@@ -17,9 +17,21 @@ type View =
 
 export interface HelpCenterWidgetProps {
   apiUrl: string;
+  /**
+   * Called when the user asks for a human. When provided, a row is pinned to
+   * the bottom of the panel on every view. Deliberately generic — the host
+   * decides what this opens (live chat, a contact form, a mail client).
+   */
+  onContactSupport?: () => void;
+  /** Label for the contact row. Defaults to "Contact support". */
+  contactLabel?: string;
 }
 
-export function HelpCenterWidget({ apiUrl }: HelpCenterWidgetProps) {
+export function HelpCenterWidget({
+  apiUrl,
+  onContactSupport,
+  contactLabel = 'Contact support',
+}: HelpCenterWidgetProps) {
   const [open, setOpen] = useState(false);
   const [stack, setStack] = useState<View[]>([{ name: 'home' }]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,6 +91,16 @@ export function HelpCenterWidget({ apiUrl }: HelpCenterWidgetProps) {
           onBack={pop}
           onClose={() => setOpen(false)}
           viewKey={'id' in current ? `${current.name}:${current.id}` : current.name}
+          footer={
+            onContactSupport ? (
+              <button className="nhc-contact" onClick={onContactSupport}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                <span>{contactLabel}</span>
+              </button>
+            ) : null
+          }
         >
           <SearchBar onSearch={handleSearch} />
 
