@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { loadHelpMetadata } from '../../../../lib/help-data';
 import { setCorsHeaders } from '../../../../lib/cors';
+import { absolutizeMediaUrlsInContent } from '../../../../lib/media';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   setCorsHeaders(req, res);
@@ -30,7 +31,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-    return res.status(200).json({ article });
+    return res.status(200).json({
+      article: { ...article, content: absolutizeMediaUrlsInContent(article.content) },
+    });
   } catch (e) {
     console.error('[api/v1/articles/[id]]', e);
     return res.status(500).json({ error: 'Failed to load article' });

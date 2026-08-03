@@ -5,25 +5,17 @@ import https from 'https';
 import http from 'http';
 import { getHelpMediaDir } from './media-dir';
 
-/** Notion image URL patterns (expiring S3 and similar) */
-const NOTION_IMAGE_URL_PATTERNS = [
-  /^https:\/\/prod-files-secure\.s3\.[^.]+\.amazonaws\.com\//,
-  /^https:\/\/[^/]*\.s3\.[^/]*\.amazonaws\.com\/.*notion/,
-  /^https:\/\/www\.notion\.so\//,
-  /^https:\/\/images\.unsplash\.com\/.*\?.*notion/,
-];
-
-function isNotionImageUrl(url: string): boolean {
+function isHttpUrl(url: string): boolean {
   try {
-    new URL(url);
-    return NOTION_IMAGE_URL_PATTERNS.some((p) => p.test(url));
+    const { protocol } = new URL(url);
+    return protocol === 'http:' || protocol === 'https:';
   } catch {
     return false;
   }
 }
 
 /**
- * Generate a stable filename for a Notion URL (uses path without query for cache efficiency)
+ * Generate a stable filename for an image URL (uses path without query for cache efficiency)
  */
 function getFilenameForNotionUrl(url: string): string {
   const urlObj = new URL(url);
@@ -232,8 +224,10 @@ export async function processBlocksMedia(blocks: any[]): Promise<any[]> {
 const MARKDOWN_IMAGE_RE = /!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g;
 
 /**
- * Process markdown content: download any Notion image URLs and replace with local paths.
- * Notion image URLs expire; storing them locally ensures persistent display.
+ * Process markdown content: download every external image URL and replace with a local path.
+ * Covers Notion's own expiring S3 links as well as anything else pasted into the doc
+ * (image-sharing services, someone's local dev server, etc.) — any of those can go away
+ * or become unreachable, so everything gets rehosted locally on sync.
  */
 export async function processMarkdownImages(markdown: string): Promise<string> {
   if (!markdown || typeof markdown !== 'string') return markdown;
@@ -244,7 +238,7 @@ export async function processMarkdownImages(markdown: string): Promise<string> {
   let result = markdown;
   for (const match of matches) {
     const [fullMatch, alt, url] = match;
-    if (!isNotionImageUrl(url)) continue;
+    if (!isHttpUrl(url)) continue;
 
     try {
       const filename = getFilenameForNotionUrl(url);
@@ -255,4 +249,30 @@ export async function processMarkdownImages(markdown: string): Promise<string> {
     }
   }
   return result;
+}
+
+function getPublicOrigin(): string {
+  return (process.env.HELP_CENTER_URL || 'http://localhost:3000').replace(/\/+$/, '');
+}
+
+/**
+ * Rewrite root-relative `/media/...` references to absolute URLs using this
+ * site's public origin. Relative paths resolve fine for direct visits to this
+ * site, but content served through the public API (`/api/v1/*`) is rendered
+ * inside the embedding site's own page (e.g. the help-center widget on a
+ * different domain) — there, a relative `/media/...` src resolves against
+ * *that* page's origin instead of ours, 404ing.
+ */
+export function absolutizeMediaPath(pathOrUrl: string | undefined): string | undefined {
+  if (!pathOrUrl || !pathOrUrl.startsWith('/media/')) return pathOrUrl;
+  return `${getPublicOrigin()}${pathOrUrl}`;
+}
+
+const MARKDOWN_MEDIA_PATH_RE = /(!\[[^\]]*\]\()(\/media\/[^)\s]+)(\))/g;
+
+/** Same as {@link absolutizeMediaPath}, but rewrites every `/media/...` image reference in markdown content. */
+export function absolutizeMediaUrlsInContent(markdown: string | undefined): string | undefined {
+  if (!markdown) return markdown;
+  const origin = getPublicOrigin();
+  return markdown.replace(MARKDOWN_MEDIA_PATH_RE, (_full, prefix, mediaPath, suffix) => `${prefix}${origin}${mediaPath}${suffix}`);
 }
