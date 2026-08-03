@@ -51,7 +51,12 @@
   bottom: 88px;
   right: 24px;
   width: 360px;
-  max-height: 560px;
+  /* Fixed height, not max-height: the panel must not resize to fit its
+     content. Views swap in asynchronously (an article renders a small
+     loading state before its markdown arrives), so a content-derived
+     height collapses the panel and snaps it back on every navigation. */
+  height: 560px;
+  max-height: calc(100vh - 112px);
   background: white;
   border-radius: var(--nhc-radius);
   box-shadow: var(--nhc-shadow);
@@ -365,6 +370,7 @@
     right: 0;
     bottom: 0;
     width: 100vw;
+    height: 80vh;
     max-height: 80vh;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;

@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface Props {
   title: string;
   canGoBack: boolean;
   onBack: () => void;
   onClose: () => void;
+  /** Changes whenever a different view is shown, so the body scrolls back to the top. */
+  viewKey: string;
   children: React.ReactNode;
 }
 
-export function Panel({ title, canGoBack, onBack, onClose, children }: Props) {
+export function Panel({ title, canGoBack, onBack, onClose, viewKey, children }: Props) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (bodyRef.current) bodyRef.current.scrollTop = 0;
+  }, [viewKey]);
+
   return (
     <div className="nhc-panel" role="dialog" aria-label="Help center">
       <div className="nhc-panel-header">
@@ -26,7 +34,7 @@ export function Panel({ title, canGoBack, onBack, onClose, children }: Props) {
           </svg>
         </button>
       </div>
-      <div className="nhc-panel-body">{children}</div>
+      <div className="nhc-panel-body" ref={bodyRef}>{children}</div>
     </div>
   );
 }

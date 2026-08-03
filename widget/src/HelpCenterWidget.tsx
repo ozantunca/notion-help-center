@@ -78,6 +78,7 @@ export function HelpCenterWidget({ apiUrl }: HelpCenterWidgetProps) {
           canGoBack={stack.length > 1}
           onBack={pop}
           onClose={() => setOpen(false)}
+          viewKey={'id' in current ? `${current.name}:${current.id}` : current.name}
         >
           <SearchBar onSearch={handleSearch} />
 
