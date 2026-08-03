@@ -5,7 +5,7 @@ import { useArticlesByCollection } from '../hooks/useApi';
 interface Props {
   apiUrl: string;
   collectionId: string;
-  onArticle: (id: string) => void;
+  onArticle: (id: string, title: string) => void;
 }
 
 export function CollectionView({ apiUrl, collectionId, onArticle }: Props) {
@@ -21,7 +21,7 @@ export function CollectionView({ apiUrl, collectionId, onArticle }: Props) {
           key={a.id}
           title={a.title}
           description={a.description}
-          onClick={() => onArticle(a.id)}
+          onClick={() => onArticle(a.id, a.title)}
         />
       ))}
     </>

@@ -4,7 +4,7 @@ import { useSuggestedArticles, useCollections } from '../hooks/useApi';
 
 interface Props {
   apiUrl: string;
-  onArticle: (id: string) => void;
+  onArticle: (id: string, title: string) => void;
   onCollection: (id: string, name: string) => void;
 }
 
@@ -24,7 +24,7 @@ export function HomeView({ apiUrl, onArticle, onCollection }: Props) {
               key={a.id}
               title={a.title}
               description={a.description}
-              onClick={() => onArticle(a.id)}
+              onClick={() => onArticle(a.id, a.title)}
             />
           ))}
         </>

@@ -5,7 +5,7 @@ import { useSearch } from '../hooks/useApi';
 interface Props {
   apiUrl: string;
   query: string;
-  onArticle: (id: string) => void;
+  onArticle: (id: string, title: string) => void;
 }
 
 export function SearchView({ apiUrl, query, onArticle }: Props) {
@@ -22,7 +22,7 @@ export function SearchView({ apiUrl, query, onArticle }: Props) {
           key={r.id}
           title={r.title}
           description={r.description}
-          onClick={() => onArticle(r.id)}
+          onClick={() => onArticle(r.id, r.title)}
         />
       ))}
     </>

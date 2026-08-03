@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface Props {
   onSearch: (q: string) => void;
@@ -7,10 +7,20 @@ interface Props {
 export function SearchBar({ onSearch }: Props) {
   const [value, setValue] = useState('');
 
+  // Hold the callback in a ref so the debounce below depends only on `value`.
+  // The parent rebuilds its handler whenever the current view changes, and
+  // depending on that identity re-ran the search after every navigation —
+  // opening an article from search results immediately pushed the results
+  // back on top of it.
+  const onSearchRef = useRef(onSearch);
   useEffect(() => {
-    const t = setTimeout(() => onSearch(value), 300);
+    onSearchRef.current = onSearch;
+  });
+
+  useEffect(() => {
+    const t = setTimeout(() => onSearchRef.current(value), 300);
     return () => clearTimeout(t);
-  }, [value, onSearch]);
+  }, [value]);
 
   return (
     <div className="nhc-search">
