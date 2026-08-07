@@ -19,6 +19,26 @@ const nextConfig = {
       ],
     };
   },
+  // Baseline hardening headers. A full `Content-Security-Policy` is intentionally
+  // left out here: the pages router emits inline bootstrap scripts, so a policy
+  // needs per-deployment nonces. See SECURITY.md for a worked example.
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+          },
+          { key: 'X-DNS-Prefetch-Control', value: 'off' },
+        ],
+      },
+    ];
+  },
   webpack: (config, { isServer, nextRuntime, webpack: webpackApi }) => {
     // Instrumentation is compiled for Edge and Node; the dynamic import is still resolved for Edge.
     // Replace the Node-only entry so Edge never pulls `path` / `fs` / SQLite.

@@ -75,6 +75,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse): void
   const contentType = MIME_BY_EXT[ext] || 'application/octet-stream';
   res.setHeader('Content-Type', contentType);
   res.setHeader('Cache-Control', 'public, max-age=86400');
+  // Files here are user-supplied (Notion sync, admin logo upload). An SVG served
+  // as image/svg+xml from this origin would otherwise run script in this origin
+  // when opened directly; the sandbox + null default-src stops that, while
+  // `<img src="/media/logo.svg">` keeps rendering normally.
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox",
+  );
 
   if (req.method === 'HEAD') {
     res.setHeader('Content-Length', String(stat.size));
