@@ -6,3 +6,4 @@ Open-source template: self-hosted docs from **Notion** with a **SQLite** + **Nex
 - **[DOCKER.md](./DOCKER.md)** — volume layout (avoid exposing the repo via `public/`)
 - **[IMPLEMENTATION.md](./IMPLEMENTATION.md)** — architecture, data flow, SQLite, sync
 - **[ADMIN.md](./ADMIN.md)** — `/admin` UI and Basic auth credentials
+- **[SECURITY.md](../SECURITY.md)** — threat model, operator checklist, reporting a vulnerability

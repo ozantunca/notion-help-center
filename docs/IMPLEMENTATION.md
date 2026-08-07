@@ -16,23 +16,26 @@
 | `lib/db.ts` | SQLite path, schema, legacy `feedback.db` migration |
 | `lib/data-dir.ts` | `HELP_CENTER_DATA_DIR` → SQLite / `metadata.json` base path |
 | `lib/help-data.ts` | Load/save content and search; JSON fallbacks for migration |
-| `lib/site-config.ts` | Defaults, normalization, `applyThemeToDocument` |
+| `lib/site-config.ts` | Defaults, normalization, `applyThemeToDocument`; `isSafeCssValue` / `sanitizeUrl` validate theme values and link schemes |
 | `lib/site-config-env.ts` | Remote logo download (Notion sync + admin save) |
-| `lib/admin-auth.ts` | Basic auth verification for admin routes |
+| `lib/admin-auth.ts` | Basic auth verification (constant-time compare, Edge-safe); `hasJsonContentType` CSRF guard |
 | `middleware.ts` | Protects `/admin` and `/api/admin/*` |
 | `pages/admin/index.tsx` | Site settings form |
 | `pages/api/admin/site-config.ts` | GET/POST site config (authenticated) |
-| `pages/api/media/[[...path]].ts` | Serves files from `getHelpMediaDir()` at `/media/*` (rewrite) |
+| `pages/api/media/[[...path]].ts` | Serves files from `getHelpMediaDir()` at `/media/*` (rewrite); path-traversal checks, `nosniff` + `sandbox` CSP |
 | `lib/media-dir.ts` | `HELP_CENTER_MEDIA_DIR`; default `/app/media` if `cwd === '/app'`, else `public/media` |
 | `lib/public-dir.ts` | `HELP_CENTER_PUBLIC_DIR` for JSON mirrors (default `public`) |
 | `pages/api/admin/upload-logo.ts` | POST base64 data URL → media dir (authenticated) |
 | `components/admin/ColorField.tsx` | Admin theme color preview + picker + CSS text |
 | `components/admin/NavLinksEditor.tsx` | Admin header/footer link rows |
 | `lib/admin-logo-upload.ts` | Decode and save uploaded logo files |
+| `lib/media.ts` | Media download/rehost: scheme check per redirect hop, 5-redirect cap, 25 MB / 20 s limits, filename sanitization |
+| `pages/api/feedback.ts` | Anonymous article feedback → SQLite; bounded input, per-IP throttle |
+| `lib/cors.ts` | `PUBLIC_API_CORS_ORIGIN` allowlist for `/api/v1/*` |
 | `pages/api/site-config.ts` | Public JSON site config (SQLite / file) |
 | `components/SiteConfigProvider.tsx` | Bootstrap from `_siteConfig` in `pageProps`; inline `:root` CSS for theme |
 | `pages/_app.tsx` | `getInitialProps` merges `loadSiteConfig()` as `_siteConfig` **only when `typeof window === 'undefined'`** so the client bundle never loads SQLite |
-| `next.config.js` | Client: `better-sqlite3` → `false`; `NormalModuleReplacementPlugin` swaps `lib/help-data.ts` for `help-data.client-stub.ts` so no `fs`/SQLite in the browser (dynamic imports from `_app` are still resolved) |
+| `next.config.js` | Client: `better-sqlite3` → `false`; `NormalModuleReplacementPlugin` swaps `lib/help-data.ts` for `help-data.client-stub.ts` so no `fs`/SQLite in the browser (dynamic imports from `_app` are still resolved). Also sets baseline security headers via `headers()` |
 | `lib/help-data.client-stub.ts` | Browser-only stubs; real `help-data` runs on the server |
 | `lib/notion.ts` | Fetches collections (incl. Notion **page icon** → `icon` field) |
 | `components/CollectionIcon.tsx` | Category / breadcrumb icon: emoji or image URL |
@@ -62,6 +65,8 @@ See [`.env.example`](../.env.example).
 ## Data flow
 
 1. **Sync** (manual `pnpm run sync`, **node-cron** with default `0 */6 * * *` when `HELP_CENTER_SYNC_CRON` is unset, plus one immediate production sync when Notion env vars are set) loads collections, sub-collections, articles, markdown per article, builds Lunr index, preserves site config from DB/file (remote logo → `/media` when applicable), then `saveHelpCenterData({ ... })`. Overlapping runs are skipped if a sync is still in progress.
+
+   **Media rehosting limits.** Notion content is semi-trusted input, so every image/video/file download in `lib/media.ts` enforces `http(s)` on each redirect hop, follows at most **5 redirects**, and aborts past **25 MB** or **20 s**. A failed asset is logged and skipped — the article still syncs, keeping its original remote URL. If a legitimately large asset stops appearing after a sync, check the sync log for `Asset exceeds` and raise `MAX_DOWNLOAD_BYTES` in `lib/media.ts`.
 2. **Pages** call `loadHelpMetadata()` / `loadSiteConfig()` (server). Site config is read from SQLite, then `public/site-config.json`, then defaults.
 3. **Search** (`pages/search.tsx`) uses `loadSearchSnapshot()` (DB, then `public/search-index.json` fallback).
 
@@ -100,6 +105,19 @@ A versioned public API powers the client widget and can be called directly:
 | `GET /api/v1/search?q=` | Lunr full-text search, published articles only |
 
 CORS headers are set on all `/api/v1/*` routes via `lib/cors.ts`, controlled by the `PUBLIC_API_CORS_ORIGIN` env var. Provide a comma-separated list of allowed origins (exact match on the request `Origin` header), or `*` to allow any origin. If the var is unset, no `Access-Control-Allow-Origin` header is sent.
+
+## Article feedback (`POST /api/feedback`)
+
+Anonymous by design — the article page posts `{ articleId, rating, comment? }` and rows land in the `article_feedback` table. Because it is unauthenticated and writes to disk, input is bounded (`articleId` ≤ 200 chars, `comment` ≤ 2000 chars) and a per-IP throttle allows **10 requests per 60 s**, returning **429** with `Retry-After` past that.
+
+The throttle is **in-process**: each instance keeps its own counters, so it does not hold across a multi-instance deployment. Put a real rate limiter in the proxy if the site is publicly reachable.
+
+## Security
+
+Trust boundaries, the controls implementing them, and the deployment checklist live in **[SECURITY.md](../SECURITY.md)**. Two constraints worth knowing before editing this codebase:
+
+- **Markdown is rendered without `rehype-raw`**, so raw HTML in Notion content is escaped rather than parsed. Adding `rehype-raw` re-enables HTML injection from anyone who can edit the Notion database — pair it with `rehype-sanitize` if you ever need it.
+- **Theme values and link URLs are validated** in `lib/site-config.ts` before reaching the inline `<style>` tag and `href` attributes. Widening `isSafeCssValue` or `sanitizeUrl` re-opens the injection paths they close.
 
 ## Client widget
 
