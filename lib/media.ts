@@ -39,14 +39,47 @@ export function ensureMediaDir(): void {
   }
 }
 
+/** Redirect hops followed before giving up (guards against redirect loops). */
+const MAX_REDIRECTS = 5;
+
+/** Per-request inactivity timeout in ms. */
+const REQUEST_TIMEOUT_MS = 20_000;
+
+/** Largest single asset written to disk. */
+const MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024;
+
+/** Reject `filename` values that would escape the media directory. */
+function assertSafeMediaFilename(filename: string): void {
+  if (
+    !filename ||
+    filename === '.' ||
+    filename === '..' ||
+    filename.includes('/') ||
+    filename.includes('\\') ||
+    filename.includes('\0')
+  ) {
+    throw new Error(`Unsafe media filename: ${JSON.stringify(filename)}`);
+  }
+}
+
 /**
- * Download a file from URL and save to local media directory
+ * Download a file from URL and save to local media directory.
+ *
+ * URLs reaching here come from Notion content and the admin logo field, i.e.
+ * they are not fully trusted: the scheme is re-checked on every redirect hop,
+ * redirects are capped, and both the response size and request time are bounded
+ * so a hostile or broken origin cannot fill the disk or hang the sync forever.
  */
 export async function downloadMedia(
   url: string,
   filename: string,
   options?: { overwrite?: boolean },
 ): Promise<string> {
+  assertSafeMediaFilename(filename);
+  if (!isHttpUrl(url)) {
+    throw new Error('Only http(s) URLs can be downloaded');
+  }
+
   ensureMediaDir();
 
   const filePath = path.join(getHelpMediaDir(), filename);
@@ -59,67 +92,134 @@ export async function downloadMedia(
   }
 
   return new Promise((resolve, reject) => {
-    const doRequest = (targetUrl: string) => {
+    // A redirect chain reuses this promise, so guard against settling twice.
+    let settled = false;
+
+    const removePartialFile = () => {
+      try {
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      } catch {
+        /* best effort */
+      }
+    };
+
+    const fail = (err: Error, file?: fs.WriteStream) => {
+      if (settled) return;
+      settled = true;
+      // `destroy()` on a stream that is still being piped into emits an async
+      // 'error'; the listener attached at creation absorbs it.
+      file?.destroy();
+      removePartialFile();
+      reject(err);
+    };
+
+    const succeed = () => {
+      if (settled) return;
+      settled = true;
+      resolve(`/media/${filename}`);
+    };
+
+    const doRequest = (targetUrl: string, redirectsLeft: number) => {
+      if (!isHttpUrl(targetUrl)) {
+        fail(new Error('Refusing to follow non-http(s) redirect'));
+        return;
+      }
+
       const protocol = new URL(targetUrl).protocol === 'https:' ? https : http;
       const file = fs.createWriteStream(filePath);
+      // Must exist before any destroy(): an unhandled 'error' on a WriteStream
+      // takes down the process.
+      file.on('error', (err) => fail(err, file));
 
-      protocol
-        .get(
-          targetUrl,
-          {
-            headers: {
-              'User-Agent':
-                process.env.HELP_CENTER_HTTP_USER_AGENT || 'NotionHelpCenter-ImageSync/1.0',
-            },
+      const request = protocol.get(
+        targetUrl,
+        {
+          headers: {
+            'User-Agent':
+              process.env.HELP_CENTER_HTTP_USER_AGENT || 'NotionHelpCenter-ImageSync/1.0',
           },
-          (response) => {
-          if (response.statusCode === 301 || response.statusCode === 302) {
-            const location = response.headers.location;
-            if (location) {
-              file.close();
-              if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-              return doRequest(location);
+        },
+        (response) => {
+          const status = response.statusCode ?? 0;
+
+          const abort = (message: string) => {
+            response.unpipe(file);
+            response.destroy();
+            fail(new Error(message), file);
+          };
+
+          if (status >= 300 && status < 400 && response.headers.location) {
+            response.resume();
+            file.destroy();
+            removePartialFile();
+            if (redirectsLeft <= 0) {
+              fail(new Error(`Too many redirects while downloading ${targetUrl}`));
+              return;
             }
-          }
-          if (response.statusCode !== 200) {
-            file.close();
-            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-            reject(new Error(`Failed to download: ${response.statusCode}`));
+            // `Location` may be relative; resolve it against the URL we just requested.
+            let next: string;
+            try {
+              next = new URL(response.headers.location, targetUrl).toString();
+            } catch {
+              fail(new Error('Invalid redirect location'));
+              return;
+            }
+            doRequest(next, redirectsLeft - 1);
             return;
           }
 
-          response.pipe(file);
+          if (status !== 200) {
+            response.resume();
+            fail(new Error(`Failed to download: ${status}`), file);
+            return;
+          }
 
-          file.on('finish', () => {
-            file.close();
-            resolve(`/media/${filename}`);
+          const declared = Number(response.headers['content-length']);
+          if (Number.isFinite(declared) && declared > MAX_DOWNLOAD_BYTES) {
+            abort(`Asset exceeds ${MAX_DOWNLOAD_BYTES} bytes`);
+            return;
+          }
+
+          let received = 0;
+          response.on('data', (chunk: Buffer) => {
+            received += chunk.length;
+            if (received > MAX_DOWNLOAD_BYTES) {
+              abort(`Asset exceeds ${MAX_DOWNLOAD_BYTES} bytes`);
+            }
           });
-        })
-        .on('error', (err) => {
-          file.close();
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-          reject(err);
-        });
+
+          file.on('finish', succeed);
+          response.pipe(file);
+        },
+      );
+
+      request.setTimeout(REQUEST_TIMEOUT_MS, () => {
+        request.destroy(new Error(`Timed out downloading ${targetUrl}`));
+      });
+
+      request.on('error', (err) => fail(err, file));
     };
 
-    doRequest(url);
+    doRequest(url, MAX_REDIRECTS);
   });
 }
 
 /**
- * Extract filename from URL
+ * Extract a filename from a URL, reduced to characters that are safe as a single
+ * path segment. The URL is attacker-influenced (Notion page content), so nothing
+ * that could act as a separator or traversal token survives.
  */
 export function getFilenameFromUrl(url: string): string {
   const urlObj = new URL(url);
   const { pathname } = urlObj;
-  const filename = path.basename(pathname);
-  
-  // Add extension if missing
-  if (!filename.includes('.')) {
-    return `${filename}.jpg`;
-  }
-  
-  return filename;
+  const raw = decodeURIComponent(path.posix.basename(pathname));
+
+  const ext = path.extname(raw);
+  const safeExt = /^\.[A-Za-z0-9]{1,8}$/.test(ext) ? ext.toLowerCase() : '.jpg';
+  const safeBase =
+    path.basename(raw, ext).replace(/[^A-Za-z0-9._-]/g, '_').replace(/^\.+/, '') || 'file';
+
+  return `${safeBase}${safeExt}`.slice(0, 200);
 }
 
 /**

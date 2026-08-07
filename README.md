@@ -253,6 +253,18 @@ pnpm run dev
 - [docs/DOCKER.md](./docs/DOCKER.md) — volume layout and persistence
 - [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md) — architecture and sync flow
 - [docs/ADMIN.md](./docs/ADMIN.md) — admin behavior and credentials
+- [SECURITY.md](./SECURITY.md) — threat model, operator checklist, and how to report a vulnerability
+
+---
+
+## Security
+
+Before exposing a deployment publicly, work through the operator checklist in
+[SECURITY.md](./SECURITY.md). The essentials: serve over **HTTPS** (`/admin` uses HTTP Basic auth),
+set a strong `ADMIN_PASSWORD`, keep `NOTION_API_KEY` out of version control, and set
+`PUBLIC_API_CORS_ORIGIN` to explicit origins rather than `*`.
+
+Report vulnerabilities privately via [GitHub security advisories](https://github.com/ozantunca/notion-help-center/security/advisories/new) — not in a public issue.
 
 ---
 

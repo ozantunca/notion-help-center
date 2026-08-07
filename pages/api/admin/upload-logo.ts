@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { verifyBasicAuthHeader } from '../../../lib/admin-auth';
+import { hasJsonContentType, verifyBasicAuthHeader } from '../../../lib/admin-auth';
 import { saveAdminLogoFromDataUrl } from '../../../lib/admin-logo-upload';
 
 export const config = {
@@ -22,6 +22,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end();
+  }
+
+  if (!hasJsonContentType(req.headers['content-type'])) {
+    return res.status(415).json({ error: 'Expected Content-Type: application/json' });
   }
 
   const body = req.body as { dataUrl?: string };
