@@ -1,0 +1,38 @@
+# Build context hygiene. Anything here is never sent to the daemon, which keeps
+# the image small and — more importantly — keeps local secrets and stray files
+# out of it. See docs/DOCKER.md.
+
+# Dependencies and build output (reinstalled/rebuilt inside the image)
+node_modules
+widget/node_modules
+.next
+out
+build
+widget/dist
+
+# Local secrets — never bake these into an image
+.env
+.env.*
+!.env.example
+
+# Runtime state: belongs on a volume, not in the image
+data
+public/media
+public/site-config.json
+public/search-index.json
+public/widget.js
+public/widget.tgz
+
+# VCS and editor
+.git
+.gitignore
+.github
+.cursor
+.vscode
+.idea
+*.swp
+.DS_Store
+
+# Docs and screenshots (not needed at runtime)
+docs/screenshots
+docker-compose*.yml
