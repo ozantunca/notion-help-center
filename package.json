@@ -4,6 +4,9 @@
   "private": true,
   "license": "Apache-2.0",
   "packageManager": "pnpm@8.15.9",
+  "engines": {
+    "node": "20.x || 22.x || 23.x || 24.x || 25.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -40,6 +40,14 @@ Licensed under **Apache-2.0** — see [LICENSE](./LICENSE).
 
 ---
 
+## Prerequisites
+
+- **Node.js 20.x, 22.x, 24.x, or 25.x.** This project uses `better-sqlite3`, a native module that does **not** build on Node 18 or 21. On an unsupported version `pnpm install` fails while compiling it.
+- **pnpm** — install it directly, or run `corepack enable` so Node uses the version pinned in `package.json`.
+- A **Notion account** (for the sync path). To preview the UI without Notion, skip to [Local demo mode](#local-demo-mode-for-developers).
+
+---
+
 ## Quickstart with Notion
 
 ### 1) Duplicate the Notion template
@@ -63,12 +71,15 @@ cp .env.example .env.local
 At minimum, set:
 
 ```env
-NOTION_API_KEY=secret_...
+# Notion tokens start with ntn_ (newer) or secret_ (older) — copy yours verbatim
+NOTION_API_KEY=ntn_...
 NOTION_DATABASE_ID=...
 HELP_CENTER_URL=https://docs.example.com
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your-strong-password
 ```
+
+`.env.local` is gitignored. Never commit real credentials — see [SECURITY.md](./SECURITY.md).
 
 ### 4) Sync and run
 
@@ -130,10 +141,11 @@ Or use [docker-compose.example.yml](./docker-compose.example.yml).
 With `ADMIN_USERNAME` and `ADMIN_PASSWORD` set, open `/admin` to:
 
 - Upload or link a logo
-- Edit brand colors and custom CSS
-- Configure navigation links
+- Edit brand colors — hex, `rgb()`, `hsl()`, keywords, and `linear-gradient(...)`
+- Configure header and footer navigation links
+- Set the brand name, support email, and SEO title/description defaults
 
-Settings are stored in SQLite and persist across restarts. See [docs/ADMIN.md](./docs/ADMIN.md).
+Settings are stored in SQLite and persist across restarts. Theme values and link URLs are validated before use, so a few inputs are rejected on save — see [docs/ADMIN.md](./docs/ADMIN.md) for the exact rules.
 
 ---
 
@@ -276,4 +288,21 @@ Inspired by [HelpKit](https://www.helpkit.so), a hosted help center solution bui
 
 ## Contributing
 
-Issues and PRs are welcome. Use **pnpm** for installs and scripts (`pnpm install`, `pnpm run …`). Do not commit secrets, `package-lock.json`, or deployment-specific branding in shared defaults.
+Issues and PRs are welcome.
+
+**Before opening a PR**, run:
+
+```bash
+pnpm run typecheck   # must pass; also install widget deps first: cd widget && pnpm install
+pnpm run build       # must succeed
+```
+
+There is currently **no automated test suite and no CI**, so these two commands are the de facto checks — please run them locally.
+
+**Conventions:**
+
+- Use **pnpm** for installs and scripts (`pnpm install`, `pnpm run …`).
+- Do not commit secrets, `package-lock.json`, or deployment-specific branding in shared defaults.
+- Generated artifacts (`public/widget.js`, `public/search-index.json`, `data/*.db`, …) are gitignored — don't add them.
+- Update the relevant file in [`docs/`](./docs) when you change documented behavior.
+- If a change touches authentication, media handling, or anything that renders user input, read [SECURITY.md](./SECURITY.md) first — several files carry invariants that are easy to undo by accident.
