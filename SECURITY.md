@@ -118,8 +118,18 @@ Where the code defends the boundaries above:
 
 ## Dependencies
 
-Run `pnpm audit` before releases. Note that current advisories against
-`next@14.x` are marked as fixed only in `>= 15.5.16`; upgrading to Next 15 is a
-major migration and is tracked separately. Most of those advisories concern App
-Router and middleware features this project does not use, but review them
-against your own deployment.
+Run `pnpm audit` before releases. The app pins **`next@^15.5.25`** (or newer
+15.5.x) so published fixes for Server Actions, RSC deserialization, middleware,
+and image optimization apply. Direct and transitive dependency versions are also
+nudged via `pnpm.overrides` in `package.json` where upstream packages lag.
+
+### Server Actions
+
+This project uses the **Pages Router** only (`pages/`). There are no
+`"use server"` modules and no App Router `app/` tree, so application code does
+not define Server Actions. The framework may still expose Server Action
+endpoints internally; keeping Next.js on a patched 15.5.x release is the
+primary mitigation. If Server Actions are added later, follow Next.js guidance:
+authenticate inside each action, validate input, set
+`serverActions.allowedOrigins` in `next.config.js`, and avoid forwarding
+user-controlled URLs from actions.
