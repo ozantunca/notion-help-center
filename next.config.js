@@ -3,9 +3,7 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    instrumentationHook: true,
-  },
+  // instrumentation.ts is supported without a feature flag in Next 15+.
   images: {
     unoptimized: true,
   },
