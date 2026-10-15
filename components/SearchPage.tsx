@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Header } from './Layout/Header';
 import { Footer } from './Layout/Footer';
 import { HeroSection } from './Layout/HeroSection';
-import { ArticleCard } from './ArticleCard';
+import { ArticleList } from './ArticleList';
 import { SearchDocument } from '../lib/search-index';
 import { Collection, SubCollection } from '../lib/types';
 import type { SiteConfig } from '../lib/site-config';
@@ -12,6 +12,8 @@ import type { SiteConfig } from '../lib/site-config';
 interface SearchPageProps {
   query: string;
   results: SearchDocument[];
+  /** Suggested articles, filled only when `results` is empty. */
+  suggested: SearchDocument[];
   collections: Collection[];
   subCollections: SubCollection[];
   siteConfig: SiteConfig;
@@ -34,6 +36,7 @@ function getCollectionContext(
 export function SearchPage({
   query,
   results,
+  suggested,
   collections,
   subCollections,
   siteConfig,
@@ -42,6 +45,15 @@ export function SearchPage({
   const pageTitle = query
     ? `Search results for "${query}" - ${suffix}`
     : `Search - ${suffix}`;
+
+  const toItems = (docs: SearchDocument[]) =>
+    docs.map((doc) => ({
+      id: doc.id,
+      title: doc.title,
+      description: doc.description,
+      url: doc.url,
+      eyebrow: getCollectionContext(doc, collections, subCollections),
+    }));
 
   return (
     <>
@@ -61,59 +73,48 @@ export function SearchPage({
         <Header />
         <HeroSection size="compact" defaultQuery={query} />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <nav className="text-sm text-gray-600 mb-6">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-sm text-gray-500">
             <Link href="/" className="hover:text-primary">
               Home
             </Link>
-            <span className="mx-2">›</span>
-            <span className="text-gray-900 font-medium">
-              {query ? `Search results for "${query}"` : 'Search results'}
-            </span>
+            <span aria-hidden>›</span>
+            <span className="text-gray-900">Search</span>
           </nav>
 
           {!query && (
-            <p className="text-gray-600 mb-8">
-              Enter a search term above to find articles.
-            </p>
-          )}
-
-          {query && results.length === 0 && (
-            <p className="text-gray-600">
-              No articles found for &quot;{query}&quot;. Try different keywords.
-            </p>
+            <p className="text-gray-600">Enter a search term above to find articles.</p>
           )}
 
           {query && results.length > 0 && (
             <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                {results.length} {results.length === 1 ? 'article' : 'articles'}{' '}
-                found
-              </h2>
-              <div className="space-y-3">
-                {results.map((doc) => {
-                  const context = getCollectionContext(
-                    doc,
-                    collections,
-                    subCollections,
-                  );
-                  return (
-                    <div key={doc.id}>
-                      <ArticleCard
-                        title={doc.title}
-                        description={doc.description}
-                        url={doc.url}
-                        variant="list"
-                      />
-                      {context && (
-                        <p className="text-xs text-gray-500 mt-1 ml-4">
-                          In: {context}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              <h1 className="mb-6 text-2xl font-bold tracking-tight text-gray-900">
+                {results.length} {results.length === 1 ? 'result' : 'results'} for “{query}”
+              </h1>
+              <ArticleList articles={toItems(results)} />
+            </section>
+          )}
+
+          {query && results.length === 0 && (
+            <section>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                No results for “{query}”
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Check the spelling or try a shorter word. You can also{' '}
+                <Link href="/contact" className="font-medium text-primary hover:underline">
+                  contact support
+                </Link>
+                .
+              </p>
+              {suggested.length > 0 && (
+                <div className="mt-10">
+                  <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                    Popular articles
+                  </h2>
+                  <ArticleList articles={toItems(suggested)} />
+                </div>
+              )}
             </section>
           )}
         </main>

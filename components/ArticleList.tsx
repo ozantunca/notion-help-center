@@ -6,6 +6,8 @@ export interface ArticleListItem {
   title: string;
   description?: string;
   url: string;
+  /** Small line above the title, e.g. "Collection › Section". */
+  eyebrow?: string;
 }
 
 /** Compact, divided list of article links inside one card. */
@@ -19,6 +21,9 @@ export function ArticleList({ articles }: { articles: ArticleListItem[] }) {
             className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
           >
             <div className="min-w-0 flex-1">
+              {article.eyebrow && (
+                <p className="mb-0.5 text-xs text-gray-400">{article.eyebrow}</p>
+              )}
               <p className="font-semibold text-gray-900 group-hover:text-primary">
                 {article.title}
               </p>
