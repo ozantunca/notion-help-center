@@ -9,6 +9,7 @@ module.exports = {
       colors: {
         primary: 'var(--color-primary)',
         'primary-hover': 'var(--color-primary-hover)',
+        'primary-soft': 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
         orange: '#ffa659',
         'soft-border': '#ddd',
         'light-blue': '#1890ff',

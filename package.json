@@ -18,6 +18,9 @@
   "dependencies": {
     "@notionhq/client": "^2.2.15",
     "better-sqlite3": "^12.6.2",
+    "github-slugger": "^2.0.0",
+    "hast-util-to-html": "^9.0.5",
+    "hast-util-to-string": "^3.0.1",
     "lunr": "^2.3.9",
     "next": "^15.5.25",
     "next-seo": "^5.15.0",
@@ -25,7 +28,12 @@
     "notion-to-md": "^3.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-markdown": "^10.1.0"
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5"
   },
   "pnpm": {
     "overrides": {
@@ -42,6 +50,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/hast": "^3.0.5",
     "@types/lunr": "^2.3.5",
     "@types/node": "^22.13.0",
     "@types/node-cron": "^3.0.11",
