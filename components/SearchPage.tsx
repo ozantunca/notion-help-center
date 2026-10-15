@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Header } from './Layout/Header';
 import { Footer } from './Layout/Footer';
+import { HeroSection } from './Layout/HeroSection';
 import { ArticleCard } from './ArticleCard';
 import { SearchDocument } from '../lib/search-index';
 import { Collection, SubCollection } from '../lib/types';
@@ -57,7 +58,8 @@ export function SearchPage({
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        <Header variant="purple" showSearch searchQuery={query} />
+        <Header />
+        <HeroSection size="compact" defaultQuery={query} />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <nav className="text-sm text-gray-600 mb-6">

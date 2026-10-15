@@ -10,6 +10,161 @@
   --hero-gradient-to: #818cf8;
 }
 
+html {
+  scroll-padding-top: 1.5rem;
+}
+
 body {
   @apply bg-gray-50 text-gray-900 antialiased;
+}
+
+/* ---- Article body (HTML from lib/markdown.ts) ---- */
+
+.article-body {
+  @apply prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-gray-900
+    prose-p:text-gray-700 prose-li:text-gray-700 prose-img:rounded-xl
+    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+    prose-code:rounded prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5
+    prose-code:font-medium prose-code:text-gray-800
+    prose-code:before:content-none prose-code:after:content-none
+    prose-pre:rounded-xl prose-pre:bg-gray-900;
+}
+
+.article-body pre code {
+  @apply bg-transparent p-0 font-normal text-inherit;
+}
+
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+  position: relative;
+}
+
+.article-body .heading-anchor {
+  @apply ml-2 font-normal text-gray-300 no-underline opacity-0 transition-opacity;
+}
+
+.article-body :is(h2, h3, h4):hover .heading-anchor,
+.article-body .heading-anchor:focus-visible {
+  @apply opacity-100;
+}
+
+.article-body .heading-anchor:hover {
+  @apply text-primary no-underline;
+}
+
+.article-body .heading-anchor[data-copied]::after {
+  content: 'Copied';
+  @apply ml-2 rounded bg-gray-900 px-2 py-0.5 align-middle text-xs font-medium text-white;
+}
+
+/* Notion callout: `> 💡 text` */
+.article-body .callout {
+  @apply my-6 flex gap-3 rounded-xl border px-5 py-4;
+  border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  background-color: color-mix(in srgb, var(--color-primary) 6%, white);
+}
+
+.article-body .callout-icon {
+  @apply shrink-0 text-xl leading-7;
+}
+
+.article-body .callout-body {
+  @apply min-w-0 flex-1;
+}
+
+.article-body .callout-body > :first-child {
+  @apply mt-0;
+}
+
+.article-body .callout-body > :last-child {
+  @apply mb-0;
+}
+
+/* Notion toggle: <details><summary> */
+.article-body details {
+  @apply my-4 rounded-xl border border-gray-200 px-5;
+}
+
+.article-body summary {
+  @apply -mx-5 flex cursor-pointer list-none items-center gap-3 px-5 py-3 font-semibold text-gray-900;
+}
+
+.article-body summary::-webkit-details-marker {
+  display: none;
+}
+
+.article-body summary::before {
+  content: '';
+  @apply h-2 w-2 shrink-0 rotate-[-45deg] border-b-2 border-r-2 border-gray-400 transition-transform;
+}
+
+.article-body details[open] > summary::before {
+  @apply rotate-45;
+}
+
+.article-body details[open] {
+  @apply pb-1;
+}
+
+.article-body details > summary + * {
+  @apply mt-0;
+}
+
+/* Tables scroll inside their own box on narrow screens */
+.article-body .table-wrap {
+  @apply my-6 overflow-x-auto rounded-xl border border-gray-200;
+}
+
+.article-body .table-wrap table {
+  @apply my-0;
+}
+
+.article-body .table-wrap th {
+  @apply bg-gray-50;
+}
+
+/* Keep columns readable on phones; the wrapper scrolls instead. */
+.article-body .table-wrap :is(th, td) {
+  min-width: 8rem;
+}
+
+.article-body .table-wrap :is(th, td):first-child {
+  @apply pl-4;
+}
+
+.article-body .table-wrap :is(th, td):last-child {
+  @apply pr-4;
+}
+
+/* GFM task lists */
+.article-body .contains-task-list {
+  @apply list-none pl-0;
+}
+
+.article-body .task-list-item {
+  @apply flex items-baseline gap-2 pl-0;
+}
+
+.article-body .task-list-item input {
+  @apply m-0 translate-y-0.5;
+  accent-color: var(--color-primary);
+}
+
+/* Inline outline on small screens */
+.toc-inline summary {
+  list-style: none;
+}
+
+.toc-inline summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc-inline summary::after {
+  content: '▾';
+  @apply float-right text-gray-400;
+}
+
+.toc-inline[open] summary::after {
+  content: '▴';
 }

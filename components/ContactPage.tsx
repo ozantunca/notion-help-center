@@ -4,6 +4,7 @@ import Script from 'next/script';
 import Link from 'next/link';
 import { Header } from './Layout/Header';
 import { Footer } from './Layout/Footer';
+import { HeroSection } from './Layout/HeroSection';
 import type { SiteConfig } from '../lib/site-config';
 
 const CRISP_WEBSITE_ID = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID;
@@ -54,7 +55,8 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
         />
 
         <div className="min-h-screen bg-gray-50">
-          <Header variant="purple" showSearch />
+          <Header />
+          <HeroSection size="compact" />
 
           <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <nav className="text-sm text-gray-600 mb-6">
@@ -114,7 +116,8 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
         </Head>
 
         <div className="min-h-screen bg-gray-50">
-          <Header variant="purple" showSearch />
+          <Header />
+          <HeroSection size="compact" />
 
           <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <nav className="text-sm text-gray-600 mb-6">
@@ -223,7 +226,8 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        <Header variant="purple" showSearch />
+        <Header />
+        <HeroSection size="compact" />
 
         <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <nav className="text-sm text-gray-600 mb-6">
