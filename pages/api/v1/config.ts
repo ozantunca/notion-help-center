@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { loadSiteConfig } from '../../../lib/help-data';
 import { setCorsHeaders } from '../../../lib/cors';
 import { absolutizeMediaPath } from '../../../lib/media';
+import { APP_VERSION } from '../../../lib/version';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   setCorsHeaders(req, res);
@@ -19,6 +20,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const config = loadSiteConfig();
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json({
+      version: APP_VERSION,
       config: { ...config, logoUrl: absolutizeMediaPath(config.logoUrl) },
     });
   } catch (e) {

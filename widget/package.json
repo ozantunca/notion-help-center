@@ -1,6 +1,6 @@
 {
   "name": "notion-help-center-widget",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Floating help center widget powered by notion-help-center",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

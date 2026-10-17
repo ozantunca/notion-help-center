@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { ColorField } from '../../components/admin/ColorField';
 import { NavLinksEditor } from '../../components/admin/NavLinksEditor';
 import type { NavLink, SiteConfig, SiteTheme } from '../../lib/site-config';
+import { APP_VERSION } from '../../lib/version';
 
 type Props = {
   initialConfig: SiteConfig;
@@ -129,7 +130,18 @@ export default function AdminPage({ initialConfig, mediaPersistence }: Props) {
       </Head>
       <div className="min-h-screen bg-gray-100 py-10 px-4">
         <div className="mx-auto max-w-2xl rounded-lg bg-white p-8 shadow">
-          <h1 className="text-2xl font-semibold text-gray-900">Notion Help Center — settings</h1>
+          <div className="flex items-baseline justify-between gap-4">
+            <h1 className="text-2xl font-semibold text-gray-900">Notion Help Center — settings</h1>
+            <a
+              href={`https://github.com/ozantunca/notion-help-center/releases/tag/v${APP_VERSION}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 font-mono text-xs text-gray-600 hover:bg-gray-200"
+              title="Running version — open release notes"
+            >
+              v{APP_VERSION}
+            </a>
+          </div>
           <p className="mt-2 text-sm text-gray-600">
             Stored in SQLite and <code className="rounded bg-gray-100 px-1">public/site-config.json</code>.
             Remote logo URLs are saved under the media directory (

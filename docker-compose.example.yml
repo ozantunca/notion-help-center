@@ -3,8 +3,9 @@
 
 services:
   notion-help-center:
-    # Build: docker build -t notion-help-center:latest .  — or push to your own registry.
-    image: notion-help-center:latest
+    # Published on every release. :1 gets new features and fixes but no breaking changes.
+    # See README "Which tag to use" and "Upgrading".
+    image: ghcr.io/ozantunca/notion-help-center:1
     ports:
       - '3000:3000'
     environment:

@@ -1,8 +1,17 @@
 const path = require('path');
+const { version } = require('./package.json');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // The Docker image sets NEXT_OUTPUT_STANDALONE=1 to get a small, self-contained
+  // server. `pnpm start` keeps working without it.
+  output: process.env.NEXT_OUTPUT_STANDALONE === '1' ? 'standalone' : undefined,
+
+  env: {
+    // Single source of truth for the version is package.json (bumped by release-please).
+    NEXT_PUBLIC_APP_VERSION: version,
+  },
   // instrumentation.ts is supported without a feature flag in Next 15+.
   images: {
     unoptimized: true,
