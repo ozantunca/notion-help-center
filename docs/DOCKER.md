@@ -1,5 +1,16 @@
 # Docker and volume layout
 
+## Official image
+
+`ghcr.io/ozantunca/notion-help-center` is built from the [Dockerfile](../Dockerfile) on every release (see [Upgrading](../README.md#upgrading)).
+
+- **Runs as the `node` user (uid 1000).** The container starts as root only to give `/app/data`, `/app/media` and `/app/public` to that user, then drops privileges. This also fixes volumes created by older, root-owned containers. To skip the root step, run with `--user 1000:1000` and make sure the volumes are writable by uid 1000.
+- **Volumes:** `/app/data` (SQLite) and `/app/media` are declared in the image. Always mount named volumes there, or you lose data when the container is replaced.
+- **Health:** `HEALTHCHECK` calls `/api/health`, which opens the database. It returns 503 when the volume is not writable or the database schema is newer than the image.
+- **Database backups:** before a schema change, the app writes `help-center.db.backup-v<N>` next to the database. Keep your own backups of the volume as well.
+- **Widget:** `/widget.js` and `/widget.tgz` are built into the image. You do not need `pnpm run build:widget`.
+
+
 **`/media/*`** is served by the app (rewrite → **`/api/media`**). With **`WORKDIR /app`**, files are stored under **`/app/media`** by default (override with **`HELP_CENTER_MEDIA_DIR`**).
 
 Next.js still serves **other** files from **`./public`** relative to the app root (e.g. favicon). If you replace that directory with the wrong bind mount, you can accidentally **publish your repository** (e.g. **`/docker-compose.yaml`**).
