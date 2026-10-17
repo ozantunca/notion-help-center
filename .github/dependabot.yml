@@ -1,0 +1,38 @@
+# Keeps the commit-SHA pins in workflows, the npm dependencies and the Docker
+# base image up to date. Security updates are opened as soon as advisories appear.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: fix
+      prefix-development: chore
+
+  - package-ecosystem: npm
+    directory: /widget
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: fix
+      prefix-development: chore
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: fix
