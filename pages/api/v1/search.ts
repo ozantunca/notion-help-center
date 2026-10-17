@@ -3,6 +3,7 @@ import lunr from 'lunr';
 import { loadHelpMetadata, loadSearchSnapshot } from '../../../lib/help-data';
 import type { SearchDocument } from '../../../lib/search-index';
 import { setCorsHeaders } from '../../../lib/cors';
+import { runSearch } from '../../../lib/search-query';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   setCorsHeaders(req, res);
@@ -35,12 +36,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       snapshot.documents.map((d) => [d.id, d]),
     );
 
-    let matches: lunr.Index.Result[];
-    try {
-      matches = idx.search(q.trim());
-    } catch {
-      matches = [];
-    }
+    const matches = runSearch(lunr, idx, q);
 
     const results = matches
       .map((m) => docMap.get(m.ref))
