@@ -16,7 +16,7 @@
     "dev:widget": "cd widget && pnpm install && pnpm dev"
   },
   "dependencies": {
-    "@notionhq/client": "^2.2.15",
+    "@notionhq/client": "^5.27.0",
     "better-sqlite3": "^12.6.2",
     "github-slugger": "^2.0.0",
     "hast-util-to-html": "^9.0.5",
