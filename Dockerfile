@@ -44,7 +44,12 @@ COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
 COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
+# curl: hosting platforms (Coolify, Dokploy, CapRover, ...) run their own health
+# check with curl or wget and roll the deploy back when neither exists.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/* \
+ && chmod +x /usr/local/bin/docker-entrypoint.sh \
  && mkdir -p /app/data /app/media \
  && chown node:node /app/data /app/media
 

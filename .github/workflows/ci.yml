@@ -42,10 +42,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Start the image and wait for /api/health
+        # The check runs curl *inside* the container, as hosting platforms such as
+        # Coolify do, so CI fails if the image ever loses curl again.
         run: |
-          docker run -d --name nhc -p 3000:3000 notion-help-center:ci
+          docker run -d --name nhc notion-help-center:ci
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:3000/api/health; then echo; exit 0; fi
+            if docker exec nhc curl -sf http://localhost:3000/api/health; then
+              echo
+              docker exec nhc curl -sf -o /dev/null -w "GET / -> %{http_code}\n" http://localhost:3000/
+              exit 0
+            fi
             sleep 2
           done
           docker logs nhc
