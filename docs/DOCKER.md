@@ -9,6 +9,14 @@
 - **Health:** `HEALTHCHECK` calls `/api/health`, which opens the database. It returns 503 when the volume is not writable or the database schema is newer than the image.
 - **Database backups:** before a schema change, the app writes `help-center.db.backup-v<N>` next to the database. Keep your own backups of the volume as well.
 - **Widget:** `/widget.js` and `/widget.tgz` are built into the image. You do not need `pnpm run build:widget`.
+- **`curl` is included** for platform health checks.
+
+### Coolify, Dokploy and similar platforms
+
+These platforms run their own health check instead of the image's `HEALTHCHECK`:
+
+- Set the health check path to **`/api/health`** (port 3000). It opens the database, so it also catches a broken volume. `/` works too, but it only proves that the server answers.
+- Mark secrets such as `NOTION_API_KEY` and `ADMIN_PASSWORD` as **runtime only**, not build variables. The build does not need them. Build arguments can be read from the image's history.
 
 
 **`/media/*`** is served by the app (rewrite → **`/api/media`**). With **`WORKDIR /app`**, files are stored under **`/app/media`** by default (override with **`HELP_CENTER_MEDIA_DIR`**).
