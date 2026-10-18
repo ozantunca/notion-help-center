@@ -23,6 +23,12 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # One publish at a time, in start order. Two releases close together could
+    # otherwise finish out of order and move :1 / :latest back to the older image.
+    # Job level, so it also applies when release.yml calls this workflow.
+    concurrency:
+      group: docker-publish
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
