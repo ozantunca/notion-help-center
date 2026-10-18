@@ -1,6 +1,16 @@
-# Keeps the commit-SHA pins in workflows, the npm dependencies and the Docker
-# base image up to date. Security updates are opened as soon as advisories appear.
+# Dependency updates, grouped so they arrive as a few PRs per week.
+#
+# Release rule (release-please reads the commit prefix):
+# - Production dependencies and the Docker base image use `fix(deps)`. They reach
+#   users only through a new image, so merging the weekly group makes a patch
+#   release. Security updates go through the same path.
+# - Dev dependencies and GitHub Actions use `chore(deps)` / `ci`: no release.
+#
+# Major versions are ignored for npm and Docker. Upgrade those on purpose, with
+# testing (Next.js, React, @notionhq/client, Node). Actions majors stay on: they
+# are commit-SHA pins and CI runs them.
 version: 2
+
 updates:
   - package-ecosystem: github-actions
     directory: /
@@ -16,23 +26,44 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    groups:
+      production:
+        dependency-type: production
+        update-types: ['minor', 'patch']
+      development:
+        dependency-type: development
+        update-types: ['minor', 'patch']
     commit-message:
-      prefix: fix
-      prefix-development: chore
+      prefix: fix(deps)
+      prefix-development: chore(deps)
 
   - package-ecosystem: npm
     directory: /widget
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    groups:
+      widget-production:
+        dependency-type: production
+        update-types: ['minor', 'patch']
+      widget-development:
+        dependency-type: development
+        update-types: ['minor', 'patch']
     commit-message:
-      prefix: fix
-      prefix-development: chore
+      prefix: fix(deps)
+      prefix-development: chore(deps)
 
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: node
+        update-types: ['version-update:semver-major']
     commit-message:
-      prefix: fix
+      prefix: fix(deps)
