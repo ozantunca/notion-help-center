@@ -22,7 +22,7 @@
     "hast-util-to-html": "^9.0.5",
     "hast-util-to-string": "^3.0.1",
     "lunr": "^2.3.9",
-    "next": "^15.5.28",
+    "next": "^16.4.1",
     "next-seo": "^5.15.0",
     "node-cron": "^4.2.1",
     "notion-to-md": "^3.0.0",
