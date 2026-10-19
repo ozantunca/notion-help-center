@@ -15,6 +15,21 @@ export interface TocItem {
   depth: 2 | 3;
 }
 
+export interface RenderOptions {
+  /**
+   * `page` (default): the help center's own article page. Headings get ids and
+   * copy-link anchors, and an outline is returned.
+   *
+   * `embed`: HTML shown inside someone else's website (the widget). Headings get
+   * no ids and no anchors, because ids can collide with the host page and a `#`
+   * link would change the host page's address. Relative links point to the help
+   * center, and fragment-only links lose their `href`.
+   */
+  mode?: 'page' | 'embed';
+  /** Origin that relative links point to in `embed` mode. */
+  baseUrl?: string;
+}
+
 export interface RenderedArticle {
   /** Sanitised HTML, safe for `dangerouslySetInnerHTML`. */
   html: string;
@@ -124,6 +139,33 @@ function convertCallouts(tree: Root): void {
   });
 }
 
+const HAS_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
+
+/**
+ * Embed mode: the host page's origin must never be the target of a link. Every
+ * link without a scheme (`/x`, `x/y`, `//host/z`) is resolved against the help
+ * center origin, and fragment-only links lose their `href`.
+ */
+function prepareLinksForEmbed(tree: Root, baseUrl: string): void {
+  const base = `${baseUrl.replace(/\/+$/, '')}/`;
+  walk(tree, (el) => {
+    if (el.tagName !== 'a') return;
+    const href = el.properties?.href;
+    if (typeof href !== 'string' || HAS_SCHEME_RE.test(href)) return;
+
+    const { href: _removed, ...rest } = el.properties;
+    if (href.startsWith('#')) {
+      el.properties = rest;
+      return;
+    }
+    try {
+      el.properties = { ...rest, href: new URL(href, base).toString() };
+    } catch {
+      el.properties = rest;
+    }
+  });
+}
+
 function markExternalLinks(tree: Root): void {
   walk(tree, (el) => {
     if (el.tagName !== 'a') return;
@@ -177,7 +219,11 @@ function countWords(markdown: string): number {
  * parsed, then passed through `rehype-sanitize` (GitHub schema) before any of our
  * own markup is added, so only the classes and attributes set here survive.
  */
-export function renderArticleMarkdown(markdown: string): RenderedArticle {
+export function renderArticleMarkdown(
+  markdown: string,
+  options: RenderOptions = {},
+): RenderedArticle {
+  const { mode = 'page', baseUrl = '' } = options;
   const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -190,7 +236,8 @@ export function renderArticleMarkdown(markdown: string): RenderedArticle {
 
   const toc: TocItem[] = [];
   demoteHeadings(tree);
-  addHeadingAnchors(tree, toc);
+  if (mode === 'embed') prepareLinksForEmbed(tree, baseUrl);
+  else addHeadingAnchors(tree, toc);
   convertCallouts(tree);
   markExternalLinks(tree);
   makeImagesLazy(tree);

@@ -10,7 +10,10 @@ export interface Article {
   lastUpdated: string;
   collectionId: string;
   subCollectionId: string;
+  /** Markdown. */
   content?: string;
+  /** Sanitised HTML rendered by the server. Absent on help centers older than 1.3. */
+  contentHtml?: string;
   url: string;
   legacyId?: string;
 }
