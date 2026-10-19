@@ -54,7 +54,7 @@ const RICH_CONTENT = `Your help center turns a Notion database into a fast, sear
 
 # Connect Notion
 
-Create an integration at **notion.so/my-integrations**, then share your knowledge base database with it.
+Create an integration at [notion.so/my-integrations](https://www.notion.so/my-integrations), then share your knowledge base database with it.
 
 - [x] Duplicate the template into your workspace
 - [x] Create an integration and copy the token

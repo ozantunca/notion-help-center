@@ -351,7 +351,7 @@ export async function processMarkdownImages(markdown: string): Promise<string> {
   return result;
 }
 
-function getPublicOrigin(): string {
+export function getPublicOrigin(): string {
   return (process.env.HELP_CENTER_URL || 'http://localhost:3000').replace(/\/+$/, '');
 }
 

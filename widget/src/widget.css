@@ -394,6 +394,121 @@
 
 .nhc-article-content li { margin-bottom: 4px; }
 
+.nhc-article-content strong { font-weight: 600; color: #111827; }
+.nhc-article-content del { color: #6b7280; }
+
+.nhc-article-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Plain-text fallback for help centers that send markdown only */
+.nhc-article-plain {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Tables scroll inside their own box instead of widening the panel */
+.nhc-article-content .table-wrap {
+  overflow-x: auto;
+  margin-bottom: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.nhc-article-content .table-wrap table {
+  margin-bottom: 0;
+}
+
+.nhc-article-content .table-wrap th,
+.nhc-article-content .table-wrap td {
+  min-width: 90px;
+  border-width: 0 0 1px;
+}
+
+.nhc-article-content .table-wrap tr:last-child td { border-bottom: 0; }
+
+/* Notion callout: a quote that starts with an emoji */
+.nhc-article-content .callout {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+@supports (background: color-mix(in srgb, red 10%, white)) {
+  .nhc-article-content .callout {
+    border-color: color-mix(in srgb, var(--nhc-primary) 22%, transparent);
+    background: color-mix(in srgb, var(--nhc-primary) 7%, white);
+  }
+}
+
+.nhc-article-content .callout-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.nhc-article-content .callout-body { min-width: 0; flex: 1; }
+.nhc-article-content .callout-body > :last-child { margin-bottom: 0; }
+
+/* Notion toggle: <details><summary> */
+.nhc-article-content details {
+  margin-bottom: 8px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.nhc-article-content summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -12px;
+  padding: 9px 12px;
+  list-style: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #111827;
+}
+
+.nhc-article-content summary::-webkit-details-marker { display: none; }
+
+.nhc-article-content summary::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid #9ca3af;
+  border-bottom: 2px solid #9ca3af;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+.nhc-article-content details[open] > summary::before { transform: rotate(45deg); }
+.nhc-article-content details[open] { padding-bottom: 4px; }
+
+/* Task lists */
+.nhc-article-content .contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.nhc-article-content .task-list-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.nhc-article-content .task-list-item input {
+  flex-shrink: 0;
+  accent-color: var(--nhc-primary);
+}
+
 /* Loading / empty states */
 .nhc-loading {
   text-align: center;

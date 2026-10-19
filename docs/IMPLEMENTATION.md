@@ -96,7 +96,7 @@ A versioned public API powers the client widget and can be called directly:
 | `GET /api/v1/config` | Brand name, logo, colors (from `loadSiteConfig()`) |
 | `GET /api/v1/collections` | All collections with nested subcollections |
 | `GET /api/v1/articles` | Published articles (metadata, no content). Query: `?collectionId=`, `?suggested=true` |
-| `GET /api/v1/articles/:id` | Single published article with full markdown content |
+| `GET /api/v1/articles/:id` | Single published article. `content` is markdown; `contentHtml` is sanitised HTML rendered by the server (same pipeline as the article page, in embed mode: no heading ids or anchors, relative links resolved to the help center and opened in a new tab). Cached by content, so repeated requests cost no CPU |
 | `GET /api/v1/search?q=` | Lunr full-text search, published articles only |
 
 CORS headers are set on all `/api/v1/*` routes via `lib/cors.ts`, controlled by the `PUBLIC_API_CORS_ORIGIN` env var. Provide a comma-separated list of allowed origins (exact match on the request `Origin` header), or `*` to allow any origin. If the var is unset, no `Access-Control-Allow-Origin` header is sent.

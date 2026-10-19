@@ -250,7 +250,7 @@ The widget is powered by a versioned public API. You can also call these endpoin
 | `GET /api/v1/config` | Brand name, logo, colors, support email |
 | `GET /api/v1/collections` | Collections with nested subcollections |
 | `GET /api/v1/articles` | Published articles (metadata). Filters: `?collectionId=`, `?suggested=true` |
-| `GET /api/v1/articles/:id` | Single article with full markdown content |
+| `GET /api/v1/articles/:id` | Single article. `content` is markdown; `contentHtml` is the same article as sanitised HTML (tables, toggles, callouts, task lists), ready to embed |
 | `GET /api/v1/search?q=` | Full-text search (Lunr), published articles only |
 
 ---

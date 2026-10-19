@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { loadHelpMetadata } from '../../../../lib/help-data';
 import { setCorsHeaders } from '../../../../lib/cors';
-import { absolutizeMediaUrlsInContent } from '../../../../lib/media';
+import { absolutizeMediaUrlsInContent, getPublicOrigin } from '../../../../lib/media';
+import { renderEmbedHtml } from '../../../../lib/embed-html';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   setCorsHeaders(req, res);
@@ -31,8 +32,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    const content = absolutizeMediaUrlsInContent(article.content);
     return res.status(200).json({
-      article: { ...article, content: absolutizeMediaUrlsInContent(article.content) },
+      article: {
+        ...article,
+        // Markdown, kept for clients that render it themselves.
+        content,
+        // Sanitised HTML for embedding (tables, toggles, callouts, task lists).
+        contentHtml: content ? renderEmbedHtml(content, getPublicOrigin()) : '',
+      },
     });
   } catch (e) {
     console.error('[api/v1/articles/[id]]', e);
