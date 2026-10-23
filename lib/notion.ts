@@ -54,16 +54,55 @@ export function getRootPageId(): string {
 }
 
 /**
+ * Every row of a database, oldest first. The API returns at most 100 rows per
+ * call, so follow `next_cursor` until the end.
+ *
+ * The API cannot read a view's manual (drag-and-drop) order. Creation time is
+ * the closest stable order; an `Order` number property overrides it (see
+ * {@link sortByOrderProperty}).
+ */
+async function queryAllRows(databaseId: string) {
+  const notion = getNotionClient();
+  const rows: Awaited<ReturnType<Client['databases']['query']>>['results'] = [];
+  let cursor: string | undefined;
+  do {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+      sorts: [{ timestamp: 'created_time', direction: 'ascending' }],
+      start_cursor: cursor,
+    });
+    rows.push(...response.results);
+    cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
+  } while (cursor);
+  return sortByOrderProperty(rows);
+}
+
+/** `Order` number property of a row, or null when the database has none or it is empty. */
+function orderOf(row: unknown): number | null {
+  const prop = (row as { properties?: Record<string, any> }).properties?.Order;
+  return prop && prop.type === 'number' && typeof prop.number === 'number' ? prop.number : null;
+}
+
+/**
+ * Rows with an `Order` number come first, lowest first. Rows without one keep
+ * their creation order after them (the sort is stable).
+ */
+function sortByOrderProperty<T>(rows: T[]): T[] {
+  return [...rows].sort((a, b) => {
+    const x = orderOf(a);
+    const y = orderOf(b);
+    if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;
+    return x - y;
+  });
+}
+
+/**
  * Fetch all collections from the root database
  */
 export async function fetchCollections(): Promise<Collection[]> {
-  const notion = getNotionClient();
-  const rootPageId = getRootPageId();
-  const response = await notion.databases.query({
-    database_id: rootPageId,
-  });
+  const rows = await queryAllRows(getRootPageId());
 
-  return response.results
+  return rows
     .filter((page): page is typeof page & { properties: any } => 'properties' in page)
     .map((page) => {
       const props = page.properties;
@@ -91,15 +130,23 @@ export async function fetchCollections(): Promise<Collection[]> {
 }
 
 /**
- * Fetch sub-collections (article databases) from a collection page
+ * Fetch sub-collections (article databases) from a collection page, in the
+ * order they appear on the page.
  */
 export async function fetchSubCollections(collectionPageId: string): Promise<SubCollection[]> {
   const notion = getNotionClient();
-  const children = await notion.blocks.children.list({
-    block_id: collectionPageId,
-  });
+  const blocks: Awaited<ReturnType<Client['blocks']['children']['list']>>['results'] = [];
+  let cursor: string | undefined;
+  do {
+    const response = await notion.blocks.children.list({
+      block_id: collectionPageId,
+      start_cursor: cursor,
+    });
+    blocks.push(...response.results);
+    cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
+  } while (cursor);
 
-  return children.results
+  return blocks
     .filter(
       (block): block is typeof block & { type: 'child_database' } =>
         'type' in block && block.type === 'child_database',
@@ -119,12 +166,9 @@ export async function fetchArticles(
   collectionId: string,
   _subCollectionTitle: string,
 ): Promise<Article[]> {
-  const notion = getNotionClient();
-  const response = await notion.databases.query({
-    database_id: subCollectionId,
-  });
+  const rows = await queryAllRows(subCollectionId);
 
-  return response.results
+  return rows
     .filter((page): page is typeof page & { properties: any } => 'properties' in page)
     .map((page) => {
       const props = page.properties;

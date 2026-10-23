@@ -94,6 +94,12 @@ function loadHelpMetadataFromJsonFile(): HelpMetadata | null {
 }
 
 /**
+ * `position` is the order the last sync read from Notion. Rows from a sync that
+ * ran before positions existed have none and sort by title, as before.
+ */
+const NOTION_ORDER = 'position IS NULL, position, title';
+
+/**
  * Load all help content from SQLite (canonical store).
  * Falls back to data/metadata.json if the database has no collections yet.
  */
@@ -102,14 +108,14 @@ export function loadHelpMetadata(): HelpMetadata {
 
   const collections = database
     .prepare(
-      `SELECT id, title, description, icon, slug FROM collections ORDER BY title`,
+      `SELECT id, title, description, icon, slug FROM collections ORDER BY ${NOTION_ORDER}`,
     )
     .all()
     .map((row) => rowToCollection(row as Parameters<typeof rowToCollection>[0]));
 
   const subCollections = database
     .prepare(
-      `SELECT id, title, collection_id, legacy_id FROM sub_collections ORDER BY title`,
+      `SELECT id, title, collection_id, legacy_id FROM sub_collections ORDER BY ${NOTION_ORDER}`,
     )
     .all()
     .map((row) =>
@@ -120,7 +126,7 @@ export function loadHelpMetadata(): HelpMetadata {
     .prepare(
       `SELECT id, title, description, slug, published, suggested, last_updated,
               collection_id, sub_collection_id, content, url, legacy_id
-       FROM articles`,
+       FROM articles ORDER BY ${NOTION_ORDER}`,
     )
     .all()
     .map((row) => rowToArticle(row as Parameters<typeof rowToArticle>[0]));
@@ -244,34 +250,36 @@ export function saveHelpCenterData(params: {
     database.prepare(`DELETE FROM collections`).run();
 
     const insCol = database.prepare(
-      `INSERT INTO collections (id, title, description, icon, slug)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO collections (id, title, description, icon, slug, position)
+       VALUES (?, ?, ?, ?, ?, ?)`,
     );
-    for (const c of params.collections) {
+    // Arrays arrive in Notion order; store each row's index so reads keep it.
+    params.collections.forEach((c, i) => {
       insCol.run(
         c.id,
         c.title,
         c.description ?? '',
         c.icon ?? null,
         c.slug ?? null,
+        i,
       );
-    }
+    });
 
     const insSub = database.prepare(
-      `INSERT INTO sub_collections (id, title, collection_id, legacy_id)
-       VALUES (?, ?, ?, ?)`,
+      `INSERT INTO sub_collections (id, title, collection_id, legacy_id, position)
+       VALUES (?, ?, ?, ?, ?)`,
     );
-    for (const s of params.subCollections) {
-      insSub.run(s.id, s.title, s.collectionId, s.legacyId ?? null);
-    }
+    params.subCollections.forEach((s, i) => {
+      insSub.run(s.id, s.title, s.collectionId, s.legacyId ?? null, i);
+    });
 
     const insArt = database.prepare(
       `INSERT INTO articles (
         id, title, description, slug, published, suggested, last_updated,
-        collection_id, sub_collection_id, content, url, legacy_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        collection_id, sub_collection_id, content, url, legacy_id, position
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     );
-    for (const a of params.articles) {
+    params.articles.forEach((a, i) => {
       insArt.run(
         a.id,
         a.title,
@@ -285,8 +293,9 @@ export function saveHelpCenterData(params: {
         a.content ?? null,
         a.url,
         a.legacyId ?? null,
+        i,
       );
-    }
+    });
 
     database.prepare(
       `INSERT OR REPLACE INTO search_snapshot (id, index_json, documents_json)
