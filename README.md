@@ -47,6 +47,13 @@ Licensed under **Apache-2.0** — see [LICENSE](./LICENSE).
 Duplicate the [HelpKit Knowledge Base Template](https://helpkit.notion.site/HelpKit-Knowledge-Base-Academy-Template-32b504ebbf8a4a31baa2637f1ea24490) into your workspace.  
 This is the recommended structure and the same template used by [HelpKit](https://www.helpkit.so).
 
+**Order on the site** follows Notion:
+
+- **Sections** (the article databases on a collection page) appear in the order they have on that page.
+- **Collections and articles** appear in the order you created them. The Notion API cannot read a view's drag-and-drop order, so to set it yourself, add a **Number** property named `Order` to the database. Rows with an `Order` value come first, lowest first; rows without one follow in creation order.
+
+The new order shows after the next sync.
+
 ### 2) Create a Notion integration
 
 - Go to [notion.so/my-integrations](https://www.notion.so/my-integrations)

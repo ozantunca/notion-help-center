@@ -78,6 +78,18 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    version: 2,
+    name: 'keep Notion order',
+    up: (db) => {
+      // NULL until the next sync, so existing content keeps sorting by title.
+      db.exec(`
+        ALTER TABLE collections ADD COLUMN position INTEGER;
+        ALTER TABLE sub_collections ADD COLUMN position INTEGER;
+        ALTER TABLE articles ADD COLUMN position INTEGER;
+      `);
+    },
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;
