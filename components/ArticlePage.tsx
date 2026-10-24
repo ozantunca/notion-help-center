@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Article } from '../lib/types';
 import type { RenderedArticle } from '../lib/markdown';
+import type { ArticleSeo } from '../lib/structured-data';
 import { Header } from './Layout/Header';
 import { Footer } from './Layout/Footer';
 import { HeroSection } from './Layout/HeroSection';
@@ -28,6 +29,7 @@ export interface ArticleNavSection {
 export interface ArticlePageProps {
   article: Omit<Article, 'content'>;
   rendered: RenderedArticle;
+  seo: ArticleSeo;
   collection: { title: string; icon: string | null; href: string };
   subCollectionTitle: string;
   sections: ArticleNavSection[];
@@ -70,6 +72,7 @@ function PagerLink({ link, direction }: { link: ArticleLink; direction: 'previou
 export function ArticlePage({
   article,
   rendered,
+  seo,
   collection,
   subCollectionTitle,
   sections,
@@ -86,6 +89,20 @@ export function ArticlePage({
       <Head>
         <title>{`${article.title} - ${siteConfig.seoTitleSuffix}`}</title>
         <meta name="description" content={article.description} />
+        <link rel="canonical" href={seo.canonicalUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content={siteConfig.brandName} />
+        <meta property="og:title" content={article.title} />
+        {article.description && <meta property="og:description" content={article.description} />}
+        <meta property="og:url" content={seo.canonicalUrl} />
+        {seo.imageUrl && <meta property="og:image" content={seo.imageUrl} />}
+        <meta property="article:modified_time" content={article.lastUpdated} />
+        <meta name="twitter:card" content={seo.imageUrl ? 'summary_large_image' : 'summary'} />
+        <script
+          type="application/ld+json"
+          // Serialised and escaped on the server by buildArticleSeo.
+          dangerouslySetInnerHTML={{ __html: seo.jsonLd }}
+        />
       </Head>
 
       <div className="min-h-screen bg-white">
