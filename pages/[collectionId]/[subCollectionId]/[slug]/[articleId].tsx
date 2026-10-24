@@ -10,6 +10,8 @@ import {
 } from '../../../../components/ArticlePage';
 import { loadHelpMetadata, loadSiteConfig } from '../../../../lib/help-data';
 import { renderArticleMarkdown } from '../../../../lib/markdown';
+import { getPublicOrigin } from '../../../../lib/media';
+import { buildArticleSeo } from '../../../../lib/structured-data';
 
 type ArticleRouteProps = ArticlePageProps;
 
@@ -92,22 +94,30 @@ export const getServerSideProps: GetServerSideProps<ArticleRouteProps> = async (
   // Markdown is rendered here so the parser stays out of the client bundle;
   // the raw content is not sent to the browser.
   const { content, ...articleWithoutContent } = article;
+  const siteConfig = loadSiteConfig();
+  const collectionHref = `/collection/${collection.slug || slugify(collection.title)}`;
 
   return {
     props: {
       article: articleWithoutContent,
       rendered: renderArticleMarkdown(content || ''),
+      seo: buildArticleSeo({
+        origin: getPublicOrigin(),
+        article,
+        collection: { title: collection.title, href: collectionHref },
+        siteConfig,
+      }),
       collection: {
         title: collection.title,
         icon: collection.icon ?? null,
-        href: `/collection/${collection.slug || slugify(collection.title)}`,
+        href: collectionHref,
       },
       subCollectionTitle: subCollection.title,
       sections,
       previous: index > 0 ? flat[index - 1] : null,
       next: index >= 0 && index < flat.length - 1 ? flat[index + 1] : null,
       related,
-      siteConfig: loadSiteConfig(),
+      siteConfig,
     },
   };
 };
