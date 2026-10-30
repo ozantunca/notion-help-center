@@ -25,6 +25,8 @@
 | `pages/api/media/[[...path]].ts` | Serves files from `getHelpMediaDir()` at `/media/*` (rewrite) |
 | `lib/media-dir.ts` | `HELP_CENTER_MEDIA_DIR`; default `/app/media` if `cwd === '/app'`, else `public/media` |
 | `lib/public-dir.ts` | `HELP_CENTER_PUBLIC_DIR` for JSON mirrors (default `public`) |
+| `pages/api/admin/sync.ts` | GET sync status / POST start a sync (authenticated) |
+| `lib/sync-runner.ts` | One sync at a time per process; status for the admin panel |
 | `pages/api/admin/upload-logo.ts` | POST base64 data URL → media dir (authenticated) |
 | `components/admin/ColorField.tsx` | Admin theme color preview + picker + CSS text |
 | `components/admin/NavLinksEditor.tsx` | Admin header/footer link rows |
