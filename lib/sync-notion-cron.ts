@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { runNotionSync } from "./run-notion-sync";
+import { hasNotionCredentials, startSync } from "./sync-runner";
 
 const ENV_CRON = "HELP_CENTER_SYNC_CRON";
 
@@ -9,37 +9,6 @@ const DEFAULT_SYNC_CRON = "0 */6 * * *";
 const cronGlobal = globalThis as typeof globalThis & {
   __helpCenterSyncCronStarted?: boolean;
 };
-
-let syncInProgress = false;
-
-function syncCronTimestamp(): string {
-  return new Date().toISOString();
-}
-
-async function runScheduledSync(): Promise<void> {
-  const at = syncCronTimestamp();
-  if (syncInProgress) {
-    console.warn(
-      `[help-center] Periodic Notion sync skipped at ${at}: previous run still in progress`,
-    );
-    return;
-  }
-  syncInProgress = true;
-  console.info(`[help-center] Periodic Notion sync starting at ${at}`);
-  try {
-    await runNotionSync();
-    console.info(
-      `[help-center] Periodic Notion sync completed at ${syncCronTimestamp()}`,
-    );
-  } catch (err) {
-    console.error(
-      `[help-center] Periodic Notion sync failed at ${syncCronTimestamp()}:`,
-      err,
-    );
-  } finally {
-    syncInProgress = false;
-  }
-}
 
 /**
  * Registers periodic Notion sync via `node-cron`.
@@ -64,7 +33,11 @@ export function startNotionSyncCron(): void {
   }
 
   cron.schedule(expression, () => {
-    void runScheduledSync();
+    if (!startSync("schedule")) {
+      console.warn(
+        `[help-center] Periodic Notion sync skipped at ${new Date().toISOString()}: previous run still in progress`,
+      );
+    }
   });
   cronGlobal.__helpCenterSyncCronStarted = true;
 
@@ -78,14 +51,10 @@ export function startNotionSyncCron(): void {
     );
   }
 
-  const hasNotionCreds =
-    Boolean(process.env.NOTION_API_KEY?.trim()) &&
-    Boolean(process.env.NOTION_DATABASE_ID?.trim());
-
-  if (isProd && hasNotionCreds) {
+  if (isProd && hasNotionCredentials()) {
     console.info(
       "[help-center] Running initial Notion sync on server start...",
     );
-    void runScheduledSync();
+    startSync("startup");
   }
 }

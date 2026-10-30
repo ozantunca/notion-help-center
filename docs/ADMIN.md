@@ -35,4 +35,6 @@ See **[DOCKER.md](./DOCKER.md)** and the Deployment section in **README.md**.
 
 ## Sync
 
-`pnpm run sync` **does not** change site settings from Notion; it **keeps** the current DB/file config and only re-downloads a remote logo URL if the saved config still points at `http(s)`.
+**Sync now** at the top of `/admin` starts a Notion sync in the background and shows the result (`POST /api/admin/sync`; `GET` returns the status). It uses the same lock as the startup and scheduled syncs, so two syncs never run at once. The button is disabled when `NOTION_API_KEY` or `NOTION_DATABASE_ID` is missing.
+
+A sync (button, schedule, or `pnpm run sync`) **does not** change site settings from Notion; it **keeps** the current DB/file config and only re-downloads a remote logo URL if the saved config still points at `http(s)`.

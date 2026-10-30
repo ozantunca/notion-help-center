@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useCallback, useState } from 'react';
 import { ColorField } from '../../components/admin/ColorField';
 import { NavLinksEditor } from '../../components/admin/NavLinksEditor';
+import { SyncPanel } from '../../components/admin/SyncPanel';
 import type { NavLink, SiteConfig, SiteTheme } from '../../lib/site-config';
 import { APP_VERSION } from '../../lib/version';
 
@@ -188,6 +189,8 @@ export default function AdminPage({ initialConfig, mediaPersistence }: Props) {
               </p>
             </div>
           ) : null}
+
+          <SyncPanel />
 
           <form onSubmit={onSubmit} className="mt-8 space-y-8">
             <div>
