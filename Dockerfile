@@ -31,6 +31,10 @@ RUN mkdir -p public && cd widget \
 # pre-rendering /contact, JSON mirrors). It must not ship in the image or seed volumes.
 RUN NEXT_OUTPUT_STANDALONE=1 pnpm build \
  && rm -rf .next/standalone/data .next/standalone/public
+# The sync CLI as plain JS: the runtime image has no tsx. `npm run sync` in the
+# image runs it through the help-center-sync wrapper (docker/sync.sh).
+RUN pnpm run build:sync \
+ && node -e "const f='.next/standalone/package.json',p=require('./'+f);p.scripts={sync:'help-center-sync'};require('fs').writeFileSync(f,JSON.stringify(p,null,2))"
 
 # ---- runtime ----
 FROM node:22-bookworm-slim AS runner
@@ -43,13 +47,15 @@ WORKDIR /app
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
+COPY --from=build --chown=node:node /app/dist ./dist
 COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY docker/sync.sh /usr/local/bin/help-center-sync
 # curl: hosting platforms (Coolify, Dokploy, CapRover, ...) run their own health
 # check with curl or wget and roll the deploy back when neither exists.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl ca-certificates \
  && rm -rf /var/lib/apt/lists/* \
- && chmod +x /usr/local/bin/docker-entrypoint.sh \
+ && chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/help-center-sync \
  && mkdir -p /app/data /app/media \
  && chown node:node /app/data /app/media
 

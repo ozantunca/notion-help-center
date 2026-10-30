@@ -18,3 +18,4 @@ docs/screenshots
 *.log
 Dockerfile
 .dockerignore
+dist

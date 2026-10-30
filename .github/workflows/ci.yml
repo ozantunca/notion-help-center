@@ -56,3 +56,12 @@ jobs:
           done
           docker logs nhc
           exit 1
+      - name: The sync CLI runs inside the image
+        # No Notion credentials here, so a working CLI stops with this error.
+        # `sh: tsx: not found` or a missing module means the image is broken.
+        run: |
+          for cmd in "npm run sync" "help-center-sync"; do
+            out=$(docker exec nhc $cmd 2>&1) && { echo "$out"; echo "expected '$cmd' to fail"; exit 1; }
+            echo "$out" | grep -q "NOTION_DATABASE_ID environment variable is required" || { echo "$out"; exit 1; }
+            echo "$cmd: OK"
+          done

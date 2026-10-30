@@ -96,7 +96,7 @@ pnpm run build:with-sync
 pnpm start
 ```
 
-**Production:** With `NOTION_API_KEY` and `NOTION_DATABASE_ID` on the server, the app registers **node-cron** with **`HELP_CENTER_SYNC_CRON` or, if unset, a default of every six hours (`0 */6 * * *`)**, and runs **one sync right after startup** so you do not need `pnpm run sync` in the build step. To sync at any other time, click **Sync now** in `/admin`. (`pnpm run sync` needs the development dependencies, so it does not work inside the Docker image.) Override the interval by setting `HELP_CENTER_SYNC_CRON`. Persist **`/app/data`** (and **`/app/media`**) on a volume so content survives redeploys. See [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md) and [docs/DOCKER.md](./docs/DOCKER.md).
+**Production:** With `NOTION_API_KEY` and `NOTION_DATABASE_ID` on the server, the app registers **node-cron** with **`HELP_CENTER_SYNC_CRON` or, if unset, a default of every six hours (`0 */6 * * *`)**, and runs **one sync right after startup** so you do not need `pnpm run sync` in the build step. To sync at any other time, click **Sync now** in `/admin`, or run `help-center-sync` (or `npm run sync`) in the container, e.g. `docker exec <container> help-center-sync` or the Coolify terminal. Override the interval by setting `HELP_CENTER_SYNC_CRON`. Persist **`/app/data`** (and **`/app/media`**) on a volume so content survives redeploys. See [docs/IMPLEMENTATION.md](./docs/IMPLEMENTATION.md) and [docs/DOCKER.md](./docs/DOCKER.md).
 
 ---
 
@@ -291,7 +291,7 @@ See [`.env.example`](./.env.example) for the full template.
 | `pnpm run build:with-sync` | Sync from Notion, then build (recommended for production) |
 | `pnpm run build:widget` | Build `public/widget.js` and `public/widget.tgz` (run before deploying; the Docker image does this for you) |
 | `pnpm run dev:widget` | Watch mode for widget development |
-| `pnpm run sync` | Fetch Notion to SQLite (local checkout only; in Docker use **Sync now** in `/admin`) |
+| `pnpm run sync` | Fetch Notion to SQLite. In the Docker image: `help-center-sync` or `npm run sync` |
 | `pnpm run seed` | Seed sample articles for local demo/testing |
 | `pnpm run typecheck` | TypeScript check |
 
