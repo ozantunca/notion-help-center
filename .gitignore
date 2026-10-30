@@ -53,3 +53,4 @@ widget/node_modules/
 
 # Database backups written before schema migrations
 data/*.backup-*
+/dist/

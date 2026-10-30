@@ -23,6 +23,15 @@ These platforms run their own health check instead of the image's `HEALTHCHECK`:
 
 Next.js still serves **other** files from **`./public`** relative to the app root (e.g. favicon). If you replace that directory with the wrong bind mount, you can accidentally **publish your repository** (e.g. **`/docker-compose.yaml`**).
 
+## Sync on demand
+
+The server syncs once at start and then on `HELP_CENTER_SYNC_CRON` (every 6 hours by default). To sync at another time:
+
+- Click **Sync now** in `/admin` (recommended: it shares the server's lock and shows the result).
+- Or run the CLI in the container: `docker exec <container> help-center-sync`. In Coolify's terminal, `help-center-sync` or `npm run sync`. It runs as the `node` user even when started as root, so the server can still write the files it creates.
+
+The CLI is a separate process and does not share the server's lock. Do not start it while a sync is running.
+
 ## What went wrong (symptoms)
 
 - You can open URLs like **`/docker-compose.yaml`**, **`/package.json`**, or other repo files.

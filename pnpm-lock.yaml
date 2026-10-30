@@ -103,6 +103,9 @@ devDependencies:
   dotenv:
     specifier: ^16.4.5
     version: 16.6.1
+  esbuild:
+    specifier: ^0.28.2
+    version: 0.28.2
   postcss:
     specifier: ^8.5.31
     version: 8.5.31
