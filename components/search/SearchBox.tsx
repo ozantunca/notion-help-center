@@ -115,9 +115,9 @@ export function SearchBox({ size = 'compact', defaultQuery = '' }: SearchBoxProp
 
   return (
     <div ref={rootRef} className="relative text-left" onPointerEnter={ensureLoaded}>
-      <form action="/search" method="get" role="search" onSubmit={onSubmit} className="relative">
+      <form action="/search" method="get" role="search" onSubmit={onSubmit} className="group relative">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 sm:pl-5">
-          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+          <svg className="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
@@ -144,7 +144,7 @@ export function SearchBox({ size = 'compact', defaultQuery = '' }: SearchBoxProp
           aria-expanded={showPanel}
           aria-controls={listboxId}
           aria-activedescendant={showPanel && active >= 0 ? optionId(active) : undefined}
-          className={`block w-full rounded-xl border-0 bg-white pl-12 pr-12 text-gray-900 placeholder-gray-500 shadow-lg shadow-black/10 focus:outline-none focus:ring-4 focus:ring-white/40 sm:pl-14 ${
+          className={`block w-full rounded-xl border-0 bg-white pl-12 pr-12 text-gray-900 placeholder-gray-500 shadow-float transition-shadow duration-300 hover:shadow-[0_24px_56px_-12px_rgb(16_24_40/0.35)] focus:outline-none focus:ring-4 focus:ring-white/40 sm:pl-14 ${
             large ? 'py-4 text-lg' : 'py-3'
           }`}
         />
@@ -156,9 +156,15 @@ export function SearchBox({ size = 'compact', defaultQuery = '' }: SearchBoxProp
       </form>
 
       {showPanel && (
-        <div className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-xl bg-white text-gray-900 shadow-2xl ring-1 ring-black/5">
+        <div className="absolute inset-x-0 top-full z-30 mt-2 origin-top animate-scale-in overflow-hidden rounded-xl bg-white text-gray-900 shadow-float ring-1 ring-black/5">
           {!engine ? (
-            <p className="px-5 py-4 text-sm text-gray-500">
+            <p className="flex items-center gap-3 px-5 py-4 text-sm text-gray-500">
+              {!failed && (
+                <span
+                  aria-hidden
+                  className="h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-primary"
+                />
+              )}
               {failed ? 'Search is unavailable. Press Enter to search.' : 'Loading…'}
             </p>
           ) : (
@@ -184,7 +190,9 @@ export function SearchBox({ size = 'compact', defaultQuery = '' }: SearchBoxProp
                         href={hit.url}
                         onClick={() => setOpen(false)}
                         onPointerMove={() => setActive(i)}
-                        className={`block px-5 py-3 ${i === active ? 'bg-primary-soft' : ''}`}
+                        className={`block border-l-[3px] px-5 py-3 transition-colors duration-150 ${
+                          i === active ? 'border-primary bg-primary-soft' : 'border-transparent'
+                        }`}
                       >
                         <span className="block font-semibold leading-snug">
                           <Highlight text={hit.title} query={results.length ? trimmed : ''} />

@@ -67,7 +67,7 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
               <span className="text-gray-900 font-medium">Contact Us</span>
             </nav>
 
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+            <div className="animate-fade-up rounded-2xl border border-gray-200/70 bg-white p-8 shadow-card">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">
                 Chat with us
               </h1>
@@ -78,7 +78,7 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
               <button
                 type="button"
                 onClick={openCrispChat}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-hover transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white shadow-glow transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-glow-lg active:translate-y-0"
               >
                 <svg
                   className="h-5 w-5"
@@ -128,7 +128,7 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
               <span className="text-gray-900 font-medium">Contact Us</span>
             </nav>
 
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+            <div className="animate-fade-up rounded-2xl border border-gray-200/70 bg-white p-8 shadow-card">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">
                 Send us a message
               </h1>
@@ -165,7 +165,7 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
                       id="name"
                       name="name"
                       required
-                      className="block w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="block w-full rounded-lg border border-gray-200 px-4 py-2 shadow-sm transition-shadow focus:border-transparent focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
@@ -180,7 +180,7 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
                       id="email"
                       name="email"
                       required
-                      className="block w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="block w-full rounded-lg border border-gray-200 px-4 py-2 shadow-sm transition-shadow focus:border-transparent focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
@@ -195,12 +195,12 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
                       name="message"
                       rows={4}
                       required
-                      className="block w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="block w-full rounded-lg border border-gray-200 px-4 py-2 shadow-sm transition-shadow focus:border-transparent focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-hover transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white shadow-glow transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-glow-lg active:translate-y-0"
                   >
                     Send message
                   </button>
@@ -238,7 +238,7 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
             <span className="text-gray-900 font-medium">Contact Us</span>
           </nav>
 
-          <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+          <div className="animate-fade-up rounded-2xl border border-gray-200/70 bg-white p-8 shadow-card">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
               Contact Us
             </h1>
@@ -248,7 +248,7 @@ export function ContactPage({ siteConfig }: ContactPageProps) {
             </p>
             <a
               href={`mailto:${supportEmail}?subject=${encodeURIComponent(`${siteConfig.brandName} — contact`)}`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-hover transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white shadow-glow transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-glow-lg active:translate-y-0"
             >
               <svg
                 className="h-5 w-5"

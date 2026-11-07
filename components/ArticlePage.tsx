@@ -57,14 +57,24 @@ function PagerLink({ link, direction }: { link: ArticleLink; direction: 'previou
   return (
     <Link
       href={link.url}
-      className={`group flex flex-col rounded-xl border border-gray-200 px-5 py-4 transition-colors hover:border-primary ${
+      className={`group flex flex-col rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-card transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-primary-ring hover:shadow-card-hover ${
         isNext ? 'sm:col-start-2 sm:items-end sm:text-right' : ''
       }`}
     >
-      <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
-        {isNext ? 'Next →' : '← Previous'}
+      <span className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+        {!isNext && (
+          <span aria-hidden className="inline-block transition-transform duration-300 ease-out-expo group-hover:-translate-x-1">
+            ←
+          </span>
+        )}
+        {isNext ? 'Next' : 'Previous'}
+        {isNext && (
+          <span aria-hidden className="inline-block transition-transform duration-300 ease-out-expo group-hover:translate-x-1">
+            →
+          </span>
+        )}
       </span>
-      <span className="mt-1 font-semibold text-gray-900 group-hover:text-primary">{link.title}</span>
+      <span className="mt-1 font-semibold text-gray-900 transition-colors group-hover:text-primary">{link.title}</span>
     </Link>
   );
 }
@@ -129,7 +139,7 @@ export function ArticlePage({
               <span className="text-gray-900">{subCollectionTitle}</span>
             </nav>
 
-            <article>
+            <article className="animate-fade-up">
               <header className="mb-8 border-b border-gray-100 pb-8">
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                   {article.title}

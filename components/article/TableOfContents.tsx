@@ -62,7 +62,7 @@ export function TableOfContents({ items }: { items: TocItem[] }) {
 /** Collapsible outline for screens where the right column is hidden. */
 export function InlineTableOfContents({ items }: { items: TocItem[] }) {
   return (
-    <details className="toc-inline mb-8 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm">
+    <details className="toc-inline mb-8 rounded-xl border border-gray-200/70 bg-gray-50 px-4 py-3 text-sm shadow-card">
       <summary className="cursor-pointer font-medium text-gray-900">On this page</summary>
       <ul className="mt-3 space-y-1.5">
         {items.map((item) => (

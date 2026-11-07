@@ -31,8 +31,8 @@ export function HomePage({ collections, articles, siteConfig }: HomePageProps) {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <section className="mb-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">All Categories</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {collections.map((collection) => {
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {collections.map((collection, index) => {
                 const collectionArticles = articles.filter(
                   (a) => a.collectionId === collection.id,
                 );
@@ -44,6 +44,7 @@ export function HomePage({ collections, articles, siteConfig }: HomePageProps) {
                     description={collection.description || ''}
                     articleCount={collectionArticles.length}
                     icon={collection.icon}
+                    index={index}
                   />
                 );
               })}
@@ -56,13 +57,14 @@ export function HomePage({ collections, articles, siteConfig }: HomePageProps) {
                 Suggested Articles
               </h2>
               <div className="space-y-3">
-                {suggestedArticles.map((article) => (
+                {suggestedArticles.map((article, index) => (
                   <ArticleCard
                     key={article.id}
                     title={article.title}
                     description={article.description}
                     url={article.url}
                     variant="list"
+                    index={index}
                   />
                 ))}
               </div>
