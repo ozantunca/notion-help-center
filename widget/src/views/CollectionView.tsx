@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArticleCard } from '../components/ArticleCard';
+import { ListSkeleton } from '../components/Skeleton';
 import { useArticlesByCollection } from '../hooks/useApi';
 
 interface Props {
@@ -11,14 +12,15 @@ interface Props {
 export function CollectionView({ apiUrl, collectionId, onArticle }: Props) {
   const { articles, loading } = useArticlesByCollection(apiUrl, collectionId);
 
-  if (loading) return <div className="nhc-loading">Loading…</div>;
+  if (loading) return <ListSkeleton />;
   if (articles.length === 0) return <div className="nhc-empty">No articles in this collection.</div>;
 
   return (
     <>
-      {articles.map((a) => (
+      {articles.map((a, i) => (
         <ArticleCard
           key={a.id}
+          index={i}
           title={a.title}
           description={a.description}
           onClick={() => onArticle(a.id, a.title)}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useArticle } from '../hooks/useApi';
+import { ArticleSkeleton } from '../components/Skeleton';
 
 interface Props {
   apiUrl: string;
@@ -15,7 +16,7 @@ interface Props {
 export function ArticleView({ apiUrl, articleId }: Props) {
   const { article, loading } = useArticle(apiUrl, articleId);
 
-  if (loading) return <div className="nhc-loading">Loading…</div>;
+  if (loading) return <ArticleSkeleton />;
   if (!article) return <div className="nhc-empty">Article not found.</div>;
 
   // A help center older than this widget sends markdown only. Show the text

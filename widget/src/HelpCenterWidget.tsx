@@ -33,15 +33,29 @@ export function HelpCenterWidget({
   contactLabel = 'Contact support',
 }: HelpCenterWidgetProps) {
   const [open, setOpen] = useState(false);
+  // Stays true while the panel plays its exit animation after `open` turns false.
+  const [panelMounted, setPanelMounted] = useState(false);
   const [stack, setStack] = useState<View[]>([{ name: 'home' }]);
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [searchQuery, setSearchQuery] = useState('');
 
   const { config } = useConfig(apiUrl);
 
   const current = stack[stack.length - 1];
 
-  const push = useCallback((view: View) => setStack((s) => [...s, view]), []);
-  const pop = useCallback(() => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s)), []);
+  const push = useCallback((view: View) => {
+    setDirection('forward');
+    setStack((s) => [...s, view]);
+  }, []);
+  const pop = useCallback(() => {
+    setDirection('back');
+    setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+  }, []);
+
+  const toggle = () => {
+    if (!open) setPanelMounted(true);
+    setOpen(!open);
+  };
 
   const handleSearch = useCallback(
     (q: string) => {
@@ -72,6 +86,8 @@ export function HelpCenterWidget({
     : current.name === 'article' ? current.title
     : 'Help Center';
 
+  const viewKey = 'id' in current ? `${current.name}:${current.id}` : current.name;
+
   const primaryColor = config?.theme.primaryColor;
   const primaryHoverColor = config?.theme.primaryHoverColor;
 
@@ -84,13 +100,15 @@ export function HelpCenterWidget({
           : undefined
       }
     >
-      {open && (
+      {panelMounted && (
         <Panel
           title={panelTitle}
           canGoBack={stack.length > 1}
           onBack={pop}
           onClose={() => setOpen(false)}
-          viewKey={'id' in current ? `${current.name}:${current.id}` : current.name}
+          closing={!open}
+          onClosed={() => setPanelMounted(false)}
+          viewKey={viewKey}
           footer={
             onContactSupport ? (
               <button className="nhc-contact" onClick={onContactSupport}>
@@ -104,18 +122,20 @@ export function HelpCenterWidget({
         >
           <SearchBar onSearch={handleSearch} />
 
-          {current.name === 'search' ? (
-            <SearchView apiUrl={apiUrl} query={searchQuery} onArticle={handleArticle} />
-          ) : current.name === 'home' ? (
-            <HomeView apiUrl={apiUrl} onArticle={handleArticle} onCollection={handleCollection} />
-          ) : current.name === 'collection' ? (
-            <CollectionView apiUrl={apiUrl} collectionId={current.id} onArticle={handleArticle} />
-          ) : current.name === 'article' ? (
-            <ArticleView apiUrl={apiUrl} articleId={current.id} />
-          ) : null}
+          <div key={viewKey} className={`nhc-view nhc-view--${direction}`}>
+            {current.name === 'search' ? (
+              <SearchView apiUrl={apiUrl} query={searchQuery} onArticle={handleArticle} />
+            ) : current.name === 'home' ? (
+              <HomeView apiUrl={apiUrl} onArticle={handleArticle} onCollection={handleCollection} />
+            ) : current.name === 'collection' ? (
+              <CollectionView apiUrl={apiUrl} collectionId={current.id} onArticle={handleArticle} />
+            ) : current.name === 'article' ? (
+              <ArticleView apiUrl={apiUrl} articleId={current.id} />
+            ) : null}
+          </div>
         </Panel>
       )}
-      <LauncherButton open={open} onClick={() => setOpen((v) => !v)} />
+      <LauncherButton open={open} onClick={toggle} />
     </div>
   );
 }
