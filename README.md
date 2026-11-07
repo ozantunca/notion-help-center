@@ -18,7 +18,19 @@ Licensed under **Apache-2.0** — see [LICENSE](./LICENSE).
 
 ### Published help center experience
 
-![WaveVisual Help Center homepage](./docs/screenshots/help-center-home.png)
+![Help center home page with categories and suggested articles](./docs/screenshots/help-center-home.png)
+
+Results appear as you type:
+
+![Search box with live results](./docs/screenshots/help-center-search.png)
+
+Articles keep Notion callouts, toggles and tables, with a section outline and the collection's other articles beside them:
+
+![Article page with sidebar and outline](./docs/screenshots/help-center-article.png)
+
+### Embeddable widget
+
+![Help widget open on a website](./docs/screenshots/widget.png)
 
 ---
 
@@ -200,6 +212,8 @@ Settings are stored in SQLite and persist across restarts. See [docs/ADMIN.md](.
 
 Embed a floating help center widget on any external site — no npm account or third-party service required. The widget is built and served directly from your help center server.
 
+![Help widget open on a website](./docs/screenshots/widget.png)
+
 ### Script tag (any site)
 
 ```html
@@ -297,6 +311,7 @@ See [`.env.example`](./.env.example) for the full template.
 | `pnpm test` | Unit tests (Vitest) for markdown rendering, search, site config and URLs |
 | `pnpm run e2e:prepare` | Seed demo content and build the widget and the site, for the end-to-end tests |
 | `pnpm run test:e2e` | End-to-end tests (Playwright) of the site and the widget |
+| `pnpm run screenshots` | Re-capture the README screenshots from the demo content (see `scripts/take-screenshots.ts`) |
 
 ### Tests
 

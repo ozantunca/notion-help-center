@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "e2e:prepare": "pnpm run seed && pnpm run build:widget && pnpm run build",
+    "screenshots": "tsx scripts/take-screenshots.ts",
     "build:widget": "cd widget && pnpm install && pnpm build && cp dist/widget.iife.global.js ../public/widget.js && npm pack --pack-destination ../public && cd ../public && mv notion-help-center-widget-*.tgz widget.tgz",
     "dev:widget": "cd widget && pnpm install && pnpm dev"
   },
