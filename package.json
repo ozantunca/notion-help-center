@@ -13,6 +13,10 @@
     "build:sync": "esbuild scripts/sync-notion.ts --bundle --platform=node --target=node22 --format=cjs --external:better-sqlite3 --log-level=warning --outfile=dist/sync-notion.js",
     "seed": "tsx scripts/seed-demo.ts",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "e2e:prepare": "pnpm run seed && pnpm run build:widget && pnpm run build",
     "build:widget": "cd widget && pnpm install && pnpm build && cp dist/widget.iife.global.js ../public/widget.js && npm pack --pack-destination ../public && cd ../public && mv notion-help-center-widget-*.tgz widget.tgz",
     "dev:widget": "cd widget && pnpm install && pnpm dev"
   },
@@ -51,6 +55,7 @@
     }
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@tailwindcss/typography": "^0.5.20",
     "@types/better-sqlite3": "^7.6.13",
     "@types/hast": "^3.0.5",
@@ -65,6 +70,7 @@
     "postcss": "^8.5.31",
     "tailwindcss": "^3.4.18",
     "tsx": "^4.23.15",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^5.0.5"
   }
 }
