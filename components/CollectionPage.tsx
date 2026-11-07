@@ -50,10 +50,10 @@ export function CollectionPage({
             <span className="text-gray-900">{collection.title}</span>
           </nav>
 
-          <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="mb-10 flex animate-fade-up flex-col gap-5 sm:flex-row sm:items-center">
             <CollectionIcon
               icon={collection.icon}
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-white text-4xl shadow-sm [&_img]:max-h-10 [&_img]:max-w-10"
+              className="flex h-16 w-16 shrink-0 animate-pop items-center justify-center rounded-2xl border border-gray-200/70 bg-white text-4xl shadow-card-hover [&_img]:max-h-10 [&_img]:max-w-10"
             />
             <div className="min-w-0">
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">{collection.title}</h1>

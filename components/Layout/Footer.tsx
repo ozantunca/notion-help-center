@@ -11,10 +11,10 @@ export function Footer() {
         <div className="flex flex-col items-center gap-6">
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+            className="group inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 font-medium text-gray-700 shadow-card transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:border-primary-ring hover:text-primary hover:shadow-card-hover active:translate-y-0"
           >
             <svg
-              className="h-5 w-5"
+              className="h-5 w-5 transition-transform duration-300 ease-spring group-hover:-rotate-12 group-hover:scale-110"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -36,7 +36,7 @@ export function Footer() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-gray-900"
+                  className="transition-colors hover:text-gray-900"
                 >
                   {link.label}
                 </a>
@@ -44,7 +44,7 @@ export function Footer() {
                 <Link
                   key={`${link.label}-${link.href}`}
                   href={link.href}
-                  className="hover:text-gray-900"
+                  className="transition-colors hover:text-gray-900"
                 >
                   {link.label}
                 </Link>

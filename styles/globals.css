@@ -18,6 +18,31 @@ body {
   @apply bg-gray-50 text-gray-900 antialiased;
 }
 
+::selection {
+  background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+/* Dot grid on the hero, faded out towards the edges. */
+.hero-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.35) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+/* Respect the OS setting: no movement, only the final state. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ---- Article body (HTML from lib/markdown.ts) ---- */
 
 .article-body {
@@ -55,7 +80,15 @@ body {
 
 .article-body .heading-anchor[data-copied]::after {
   content: 'Copied';
-  @apply ml-2 rounded bg-gray-900 px-2 py-0.5 align-middle text-xs font-medium text-white;
+  @apply ml-2 inline-block animate-pop rounded bg-gray-900 px-2 py-0.5 align-middle text-xs font-medium text-white;
+}
+
+.article-body img {
+  @apply shadow-card-hover;
+}
+
+.article-body pre {
+  @apply shadow-card-hover;
 }
 
 /* Notion callout: `> 💡 text` */
@@ -83,7 +116,16 @@ body {
 
 /* Notion toggle: <details><summary> */
 .article-body details {
-  @apply my-4 rounded-xl border border-gray-200 px-5;
+  @apply my-4 rounded-xl border border-gray-200 bg-white px-5 shadow-card transition-shadow duration-300;
+}
+
+.article-body details:hover,
+.article-body details[open] {
+  @apply shadow-card-hover;
+}
+
+.article-body details[open] > :not(summary) {
+  @apply animate-fade-down;
 }
 
 .article-body summary {
@@ -96,7 +138,7 @@ body {
 
 .article-body summary::before {
   content: '';
-  @apply h-2 w-2 shrink-0 rotate-[-45deg] border-b-2 border-r-2 border-gray-400 transition-transform;
+  @apply h-2 w-2 shrink-0 rotate-[-45deg] border-b-2 border-r-2 border-gray-400 transition-transform duration-300 ease-out-expo;
 }
 
 .article-body details[open] > summary::before {
@@ -113,7 +155,7 @@ body {
 
 /* Tables scroll inside their own box on narrow screens */
 .article-body .table-wrap {
-  @apply my-6 overflow-x-auto rounded-xl border border-gray-200;
+  @apply my-6 overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-card;
 }
 
 .article-body .table-wrap table {
@@ -162,9 +204,13 @@ body {
 
 .toc-inline summary::after {
   content: '▾';
-  @apply float-right text-gray-400;
+  @apply float-right text-gray-400 transition-transform duration-300 ease-out-expo;
 }
 
 .toc-inline[open] summary::after {
-  content: '▴';
+  @apply rotate-180;
+}
+
+.toc-inline[open] > ul {
+  @apply animate-fade-down;
 }
