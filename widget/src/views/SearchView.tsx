@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArticleCard } from '../components/ArticleCard';
+import { ListSkeleton } from '../components/Skeleton';
 import { useSearch } from '../hooks/useApi';
 
 interface Props {
@@ -12,14 +13,15 @@ export function SearchView({ apiUrl, query, onArticle }: Props) {
   const { results, loading } = useSearch(apiUrl, query);
 
   if (!query.trim()) return null;
-  if (loading) return <div className="nhc-loading">Searching…</div>;
+  if (loading) return <ListSkeleton rows={3} />;
   if (results.length === 0) return <div className="nhc-empty">No results for "{query}".</div>;
 
   return (
     <>
-      {results.map((r) => (
+      {results.map((r, i) => (
         <ArticleCard
           key={r.id}
+          index={i}
           title={r.title}
           description={r.description}
           onClick={() => onArticle(r.id, r.title)}
