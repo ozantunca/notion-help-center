@@ -1,10 +1,8 @@
 # Dependency updates, grouped so they arrive as a few PRs per week.
 #
-# Release rule (release-please reads the commit prefix):
-# - Production dependencies and the Docker base image use `fix(deps)`. They reach
-#   users only through a new image, so merging the weekly group makes a patch
-#   release. Security updates go through the same path.
-# - Dev dependencies and GitHub Actions use `chore(deps)` / `ci`: no release.
+# Commit prefixes: production dependencies and the Docker base image use
+# `fix(deps)`, dev dependencies `chore(deps)`, GitHub Actions `ci`. Merging any
+# of them to master publishes a new image.
 #
 # Major versions are ignored for npm and Docker. Upgrade those on purpose, with
 # testing (Next.js, React, @notionhq/client, Node). Actions majors stay on: they

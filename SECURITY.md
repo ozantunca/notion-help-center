@@ -13,7 +13,7 @@ initial response within a few working days.
 ## Supported versions
 
 This project is developed on the default branch. Fixes land there; there is no
-long-term support branch for older releases.
+long-term support branch for older builds.
 
 ## Threat model
 
@@ -118,7 +118,7 @@ Where the code defends the boundaries above:
 
 ## Dependencies
 
-Run `pnpm audit` before releases. The app pins **`next@^15.5.25`** (or newer
+Run `pnpm audit` before merging dependency changes. The app pins **`next@^15.5.25`** (or newer
 15.5.x) so published fixes for Server Actions, RSC deserialization, middleware,
 and image optimization apply. Direct and transitive dependency versions are also
 nudged via `pnpm.overrides` in `package.json` where upstream packages lag.

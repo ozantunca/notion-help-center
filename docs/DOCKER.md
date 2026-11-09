@@ -2,7 +2,7 @@
 
 ## Official image
 
-`ghcr.io/ozantunca/notion-help-center` is built from the [Dockerfile](../Dockerfile) on every release (see [Upgrading](../README.md#upgrading)).
+`ghcr.io/ozantunca/notion-help-center` is built from the [Dockerfile](../Dockerfile) on every change to `master` (see [Upgrading](../README.md#upgrading)).
 
 - **Runs as the `node` user (uid 1000).** The container starts as root only to give `/app/data`, `/app/media` and `/app/public` to that user, then drops privileges. This also fixes volumes created by older, root-owned containers. To skip the root step, run with `--user 1000:1000` and make sure the volumes are writable by uid 1000.
 - **Volumes:** `/app/data` (SQLite) and `/app/media` are declared in the image. Always mount named volumes there, or you lose data when the container is replaced.

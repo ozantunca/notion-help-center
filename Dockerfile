@@ -21,6 +21,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store cd widget && pnpm install --fr
 
 # ---- build: widget bundle + Next.js standalone server ----
 FROM deps AS build
+# Version shown in /admin and /api/health. CI passes the commit, e.g. sha-1a2b3c4.
+ARG APP_VERSION=""
+ENV APP_VERSION=${APP_VERSION}
 COPY . .
 RUN mkdir -p public && cd widget \
  && pnpm build \
