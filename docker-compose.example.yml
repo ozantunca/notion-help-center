@@ -3,9 +3,9 @@
 
 services:
   notion-help-center:
-    # Published on every release. :1 gets new features and fixes but no breaking changes.
-    # See README "Which tag to use" and "Upgrading".
-    image: ghcr.io/ozantunca/notion-help-center:1
+    # :latest is rebuilt on every change to master. Pin a :sha-<commit> tag to stay
+    # on one build. See README "Which tag to use" and "Upgrading".
+    image: ghcr.io/ozantunca/notion-help-center:latest
     ports:
       - '3000:3000'
     environment:

@@ -9,8 +9,9 @@ const nextConfig = {
   output: process.env.NEXT_OUTPUT_STANDALONE === '1' ? 'standalone' : undefined,
 
   env: {
-    // Single source of truth for the version is package.json (bumped by release-please).
-    NEXT_PUBLIC_APP_VERSION: version,
+    // Published images pass the commit (`sha-1a2b3c4`) as APP_VERSION. Local
+    // builds fall back to the version in package.json.
+    NEXT_PUBLIC_APP_VERSION: process.env.APP_VERSION || version,
   },
   // instrumentation.ts is supported without a feature flag in Next 15+.
   images: {
