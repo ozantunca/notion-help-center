@@ -21,9 +21,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store cd widget && pnpm install --fr
 
 # ---- build: widget bundle + Next.js standalone server ----
 FROM deps AS build
-# Version shown in /admin and /api/health. CI passes the commit, e.g. sha-1a2b3c4.
+# Version shown in /admin and /api/health. Our CI passes APP_VERSION (sha-1a2b3c4).
+# Coolify passes SOURCE_COMMIT when "Source commit availability" is set to
+# "Available during build". Declared here, after the deps stage, so a new commit
+# does not invalidate the dependency install cache.
 ARG APP_VERSION=""
-ENV APP_VERSION=${APP_VERSION}
+ARG SOURCE_COMMIT=""
+ENV APP_VERSION=${APP_VERSION} \
+    SOURCE_COMMIT=${SOURCE_COMMIT}
 COPY . .
 RUN mkdir -p public && cd widget \
  && pnpm build \

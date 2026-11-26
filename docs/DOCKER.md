@@ -17,6 +17,7 @@ These platforms run their own health check instead of the image's `HEALTHCHECK`:
 
 - Set the health check path to **`/api/health`** (port 3000). It opens the database, so it also catches a broken volume. `/` works too, but it only proves that the server answers.
 - Mark secrets such as `NOTION_API_KEY` and `ADMIN_PASSWORD` as **runtime only**, not build variables. The build does not need them. Build arguments can be read from the image's history.
+- **Coolify, building from the repo:** to show the deployed commit (`sha-1a2b3c4`) in `/admin` and `/api/health`, set **Advanced → Build → Source commit availability** to **Available during build**. Coolify then passes `SOURCE_COMMIT` to the build. Without it, the version shows the `version` field from `package.json`.
 
 
 **`/media/*`** is served by the app (rewrite → **`/api/media`**). With **`WORKDIR /app`**, files are stored under **`/app/media`** by default (override with **`HELP_CENTER_MEDIA_DIR`**).

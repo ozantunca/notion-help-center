@@ -1,6 +1,19 @@
 const path = require('path');
 const { version } = require('./package.json');
 
+/**
+ * Version shown in /admin, /api/health and /api/v1/config:
+ * 1. APP_VERSION, set by our image workflow (`sha-1a2b3c4`)
+ * 2. SOURCE_COMMIT, set by hosts such as Coolify (shortened to `sha-1a2b3c4`)
+ * 3. the version in package.json, for local builds
+ */
+function appVersion() {
+  if (process.env.APP_VERSION) return process.env.APP_VERSION;
+  const commit = (process.env.SOURCE_COMMIT || '').trim();
+  if (/^[0-9a-f]{7,40}$/i.test(commit)) return `sha-${commit.slice(0, 7).toLowerCase()}`;
+  return version;
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,9 +22,7 @@ const nextConfig = {
   output: process.env.NEXT_OUTPUT_STANDALONE === '1' ? 'standalone' : undefined,
 
   env: {
-    // Published images pass the commit (`sha-1a2b3c4`) as APP_VERSION. Local
-    // builds fall back to the version in package.json.
-    NEXT_PUBLIC_APP_VERSION: process.env.APP_VERSION || version,
+    NEXT_PUBLIC_APP_VERSION: appVersion(),
   },
   // instrumentation.ts is supported without a feature flag in Next 15+.
   images: {
